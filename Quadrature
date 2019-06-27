@@ -104,12 +104,12 @@ Doub Dts(Doub g, Doub q, Doub E, Doub m)
 
 Doub B2(Doub g, Doub q, Doub E, Doub m)
 {
-    return m/(384*pi*pi*pow(Dtilda(q, m, E), 5)*pow(Dts(g, q, E, m), 4))*pow(q,2)*(pow(Dts(g, q, E, m),2)-2*Dts(g, q, E, m)*Dtilda(q, m, E)+2*pow(Dtilda(q, m, E),2))+4*Dts(g, q, E, m)*pow(Dtilda(q, m, E),2)*(3*Dtilda(q, m, E)-g);
+    return m/(384*pi*pi*pow(Dtilda(q, m, E), 5)*pow(Dts(g, q, E, m), 4))*(pow(q,2)*(pow(Dts(g, q, E, m),2)-2*Dts(g, q, E, m)*Dtilda(q, m, E)+2*pow(Dtilda(q, m, E),2))+4*Dts(g, q, E, m)*pow(Dtilda(q, m, E),2)*(3*Dtilda(q, m, E)-g));
 }
 
 Doub variablea(Doub q, Doub p, Doub m, Doub E)
 {
-    return pow(q,2)+pow(p,2)-m*E/(q*p);
+    return (pow(q,2)+pow(p,2)-m*E)/(q*p);
 }
 
 Doub Q0(Doub q, Doub p, Doub m, Doub E)
@@ -119,7 +119,9 @@ Doub Q0(Doub q, Doub p, Doub m, Doub E)
 
 Doub B7(Doub g, Doub q, Doub E, Doub m, Doub p)
 {
-    return -2*pi*B2(g, q, E, m)*Q0(q, p, m, E)/(p*q)-m/(27*pi*Dts(g, q, E, m)*pow(p*q,3))*((5*variablea(q, p, m, E)/pow(1-pow(variablea(q, p, m, E),2),2))+((q/p+p/q)*(1+3*pow(variablea(q, p, m, E),2))-variablea(q, p, m, E)*(3+pow(variablea(q, p, m, E),2)))/(pow(1-pow(variablea(q, p, m, E),2),3)))-(m/(432*pi*pow(Dtilda(q, m, E),3)*pow(Dts(g, q, E, m),3)*pow(p*q,2))*((pow(Dtilda(q, m, E),2)*Dts(g, q, E, m)*(38/(1-pow(variablea(q, p, m, E),2))+(20*q/p+8*p/q)*(variablea(q, p, m, E)-4*(1+pow(variablea(q, p, m, E),2)))))-(g-3*Dtilda(q, m, E))*(9*pow(q,2)/(2*(1-pow(variablea(q, p, m, E),2))))));
+    return -2*pi*B2(g, q, E, m)*Q0(q, p, m, E)/(p*q)-m/(27*pi*Dts(g, q, E, m)*pow(p*q,3))*((5*variablea(q, p, m, E)/pow(1-pow(variablea(q, p, m, E),2),2))+((q/p+p/q)*(1+3*pow(variablea(q, p, m, E),2))-variablea(q, p, m, E)*(3+pow(variablea(q, p, m, E),2)))/(pow(1-pow(variablea(q, p, m, E),2),3)))-m/(432*pi*pow(Dtilda(q, m, E)*Dts(g, q, E, m),3)*pow(p*q,2))*(Dtilda(q, m, E)*Dtilda(q, m, E)*Dts(g, q, E, m)*(38/(1-pow(variablea(q, p, m, E),2))+((20*q/p+8*p/q)*variablea(q, p, m, E)-4*(1+pow(variablea(q, p, m, E),2)))/pow(1-pow(variablea(q, p, m, E),2),2))-(g-3*Dtilda(q, m, E))*(9*pow(q,2)/(2*(1-pow(variablea(q, p, m, E),2)))));
+    /*return -2*pi*B2(g, q, E, m)*Q0(q, p, m, E)/(p*q)-m/(27*pi*Dts(g, q, E, m)*pow(p*q,3))*((5*variablea(q, p, m, E)/pow(1-pow(variablea(q, p, m, E),2),2))+((q/p+p/q)*(1+3*pow(variablea(q, p, m, E),2))-variablea(q, p, m, E)*(3+pow(variablea(q, p, m, E),2)))/(pow(1-pow(variablea(q, p, m, E),2),3)))-(m/(432*pi*pow(Dtilda(q, m, E),3)*pow(Dts(g, q, E, m),3)*pow(p*q,2))*((pow(Dtilda(q, m, E),2)*Dts(g, q, E, m)*(38/(1-pow(variablea(q, p, m, E),2))+((20*q)/p+(8*p)/q)*(variablea(q, p, m, E)-4*(1+pow(variablea(q, p, m, E),2)))))-(g-3*Dtilda(q, m, E))*(9*pow(q,2)/(2*(1-pow(variablea(q, p, m, E),2))))));*/
+
 }
 
 Doub variableb(Doub q, Doub k, Doub m, Doub E)
@@ -139,7 +141,7 @@ Doub B12(Doub g, Doub q, Doub E, Doub m, Doub p, Doub k)
 
 Doub variablea2(Doub k, Doub p, Doub m, Doub E)
 {
-    return pow(p,2)+pow(k,2)-m*E/(p*k);
+    return (pow(p,2)+pow(k,2)-m*E)/(p*k);
 }
 
 Doub B19(Doub g, Doub q, Doub E, Doub m, Doub p, Doub k)
@@ -161,9 +163,19 @@ Doub B16(Doub k, Doub p, Doub m, Doub E)
     return -2*m*pi/(9*pow(p,3)*pow(k,3)*pow(1-pow(variablea2(k, p, m, E),2),2))*((4*variablea2(k, p, m, E)/(3*(1-pow(variablea2(k, p, m, E),2))))-2*variablea2(k, p, m, E)-(pow(p,2)+pow(k,2))*(1+3*pow(variablea2(k, p, m, E),2))/(3*p*k*(1-pow(variablea2(k, p, m, E),2))))*-2/3;
 }
 
-Doub dimerp(Doub g, Doub q, Doub m, Doub E)
+Doub dimerp(Doub g, Doub p, Doub m, Doub E)
 {
-    return 1/(g-sqrt(.75*pow(q,2)-m*E));
+    return pow(p,2)/(2*pi*pi*(g-sqrt(.75*pow(p,2)-m*E)));
+}
+
+Doub dimerk(Doub g, Doub k, Doub m, Doub E)
+{
+    return pow(k,2)/(2*pi*pi*(g-sqrt(.75*pow(k,2)-m*E)));
+}
+
+Doub partofA(Doub q)
+{
+    return pow(q,2)/3;
 }
 
 int main()
@@ -173,7 +185,7 @@ int main()
     Doub q,p,l,k;
     Doub E=-8.;
     Doub ro=.01;
-    Doub product, sigma0prime, check1sum, check2sum;
+    Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum;
     int N=100;
     mat A(N,N);
     mat B;
@@ -186,11 +198,15 @@ int main()
     ofstream plot1;
     ofstream plot0prime;
     ofstream plotsigma;
-    for (int i=1;i<2;i++)
+    for (int i=1;i<11;i++)
     {
         sigma0prime=0;
         check1sum=0;
         check2sum=0;
+        diagrambsum=0;
+        diagrama1sum=0;
+        diagrama2sum=0;
+        diagrama3sum=0;
         cutoff=cutoff+1000;
         plot0.open ("gamma0_"+to_string(cutoff)+".dat");
         plot1.open ("gamma1_"+to_string(cutoff)+".dat");
@@ -228,7 +244,6 @@ int main()
             {
                 q=x[j];
                 productprime(i)=productprime(i)+w[j]*dimer2(g, q, E, m)*gamma0(j)*exchangeprime(q, p, E, m)+w[j]*exchange(q,p,E,m)*gamma0(j)*dimer2prime(g, q, E, m);
-                //productprime(i)=w[j]*dimer2(g, q, E, m)*gamma0(j)*exchangeprime(q, p, E, m);//+w[j]*exchange(q,p,E,m)*gamma0(j)*dimer2prime(g, q, E, m);
             }
         }
         vec gamma0prime=LO1*productprime;
@@ -268,9 +283,31 @@ int main()
             for (int j=1;j<N;j++)
             {
                 k=x[j];
-                
+                diagrambsum=diagrambsum+w[i]*dimerp(g, p, m, E)*gamma0(i)*w[j]*B16(k, p, m, E)*dimerk(g, k, m, E)*gamma0(j);
             }
         }
+        diagramb=diagrambsum*pi/sigma0prime;
+        cout<<"diagramb"<<'\t'<<diagramb<<endl;
+        for (int z=1;z<N;z++)
+        {
+            q=x[z];
+            diagrama3sum=diagrama3sum+w[z]*partofA(q)*B2(g, q, E, m);
+            for (int i=1;i<N;i++)
+            {
+                p=x[i];
+                diagrama2sum=diagrama2sum+w[i]*dimerp(g, p, m, E)/2*gamma0(i)*w[z]*partofA(q)*B7(g, q, E, m, p);
+                for (int j=1;j<N;j++)
+                {
+                    k=x[j];
+                    diagrama1sum=diagrama1sum+dimerp(g, p, m, E)*gamma0(i)*w[i]*w[j]*dimerk(g, k, m, E)*gamma0(j)*w[z]*partofA(q)*B12(g, q, E, m, p, k);
+                }
+            }
+        }
+        diagrama=(diagrama2sum)*pi/sigma0prime;
+        //        diagrama=(diagrama1sum+diagrama2sum+diagrama3sum)*pi/sigma0prime;
+        cout<<"diagrama"<<'\t'<<diagrama<<endl;
     }
 }
+
+//do I need to sum up the integrals seperately?
 
