@@ -95,64 +95,70 @@ int main()
     vec gamma1(N);
     vec productprime(N);
     Doub sigma0prime;
+    int cutoff=0;
     VecDoub_O x(N);
     VecDoub_O w(N);
     ofstream plot0;
     ofstream plot1;
     ofstream plot0prime;
     ofstream plotsigma;
-    plot0.open ("gamma0.dat");
-    plot1.open ("gamma1.dat");
-    plot0prime.open ("gamma0prime.dat");
-    plotsigma.open ("sigma0prime.dat");
-    gauleg(0.,1000.,x,w);
-    for(int i=1;i<x.size();i++)
+    for (int i=1;i<21;i++)
     {
-        q=x[i];
-        for (int j=1;j<N;j++)
+        sigma0prime=0;
+        cutoff=cutoff+1000;
+        plot0.open ("gamma0_"+to_string(cutoff)+".dat");
+        plot1.open ("gamma1_"+to_string(cutoff)+".dat");
+        plot0prime.open ("gamma0prime_"+to_string(cutoff)+".dat");
+        plotsigma.open ("sigma0prime_"+to_string(cutoff)+".dat");
+        gauleg(0.,cutoff,x,w);
+        for(int i=1;i<x.size();i++)
         {
-            p=x[j];
-            product=w[j]*dimer(g,p,E,m)*exchange(q,p,E,m);
-            A(i,j)=product;
+            q=x[i];
+            for (int j=1;j<N;j++)
+            {
+                p=x[j];
+                product=w[j]*dimer(g,p,E,m)*exchange(q,p,E,m);
+                A(i,j)=product;
+            }
         }
-    }
-    mat identity (N, N,fill::eye);
-    mat LO=identity-A;
-    mat LO1=inv(LO);
-    B.ones(1, N);
-    vec gamma0=LO1*trans(B);
-    for (int j=1;j<N;j++)
-        gamma1(j)=gamma0(j)*inhomogenous(ro,g,x[j],m,E);
-    gamma1=LO1*gamma1;
-    for (int i=1;i<N;i++)
-    {
-        plot0<<x[i]<<"\t"<<gamma0(i)<<"\n";
-        plot1<<x[i]<<"\t"<<gamma1(i)<<"\n";
-    }
-    plot0.close();
-    plot1.close();
-    for(int i=1;i<x.size();i++)
-    {
-        p=x[i];
+        mat identity (N, N,fill::eye);
+        mat LO=identity-A;
+        mat LO1=inv(LO);
+        B.ones(1, N);
+        vec gamma0=LO1*trans(B);
         for (int j=1;j<N;j++)
+            gamma1(j)=gamma0(j)*inhomogenous(ro,g,x[j],m,E);
+        gamma1=LO1*gamma1;
+        for (int i=1;i<N;i++)
         {
-            q=x[j];
-            productprime(i)=w[j]*dimer2(g, q, E, m)*gamma0(j)*exchangeprime(q, p, E, m)+w[j]*exchange(q,p,E,m)*gamma0(j)*dimer2prime(g, q, E, m);
-           // inprime(i,j)=productprime;
+            plot0<<x[i]<<"\t"<<gamma0(i)<<"\n";
+            plot1<<x[i]<<"\t"<<gamma1(i)<<"\n";
         }
+        for(int i=1;i<x.size();i++)
+        {
+            p=x[i];
+            for (int j=1;j<N;j++)
+            {
+                q=x[j];
+                productprime(i)=w[j]*dimer2(g, q, E, m)*gamma0(j)*exchangeprime(q, p, E, m)+w[j]*exchange(q,p,E,m)*gamma0(j)*dimer2prime(g, q, E, m);
+            }
+        }
+        vec gamma0prime=LO1*productprime;
+        for(int i=1;i<x.size();i++)
+        {
+            q=x[i];
+            sigma0prime=sigma0prime+w[i]*timesgamma0(g, q, E, m)*gamma0(i)+w[i]*timesgamma0prime(g, q, E, m)*gamma0prime(i);
+        }
+        vec normalized=(sqrt(pi/sigma0prime))*gamma0;
+        for (int i=1;i<N;i++)
+        {
+            plotsigma<<x[i]<<"\t"<<normalized(i)<<"\n";
+        }
+        plot0.close();
+        plot1.close();
+        plot0prime.close();
+        plotsigma.close();
     }
-    vec gamma0prime=LO1*productprime;
-    for(int i=1;i<x.size();i++)
-    {
-        q=x[i];
-        sigma0prime=w[i]*timesgamma0(g, q, E, m)*gamma0(i)+w[i]*timesgamma0prime(g, q, E, m)*gamma0prime(i);
-    }
-    vec normalized=(sqrt(pi/sigma0prime))*gamma0;
-    for (int i=1;i<N;i++)
-    {
-        plotsigma<<x[i]<<"\t"<<normalized(i)<<"\n";
-    }
-    plotsigma.close();
 }
 //inprime=dimer2(g, q, E, m)*gamma0(i)*exchangeprime(q, p, E, m)+exchange(q,p,E,m)*gamma0(i)*dimer2prime(g, q, E, m);
 /*    for(int i=1;i<x.size();i++)
