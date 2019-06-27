@@ -138,7 +138,7 @@ Doub B12(Doub g, Doub q, Doub E, Doub m, Doub p, Doub k)
     Doub b=variableb(q, k, m, E);
     Doub D=Dts(g,q,E,m);
     Doub Dtitle=Dtilda(q, m, E);
-    return -2*pi*(B7(g, q, E, m, k)*Q0(q, p, m, E)/(p*q)+B7(g, q, E, m, p)*Q0b(q, k, m, E)/(k*q))-4*pi*pi*B2(g, q, E, m)*Q0b(q, k, m, E)*Q0(q, p, m, E)/(k*q*p*q)+m/(54*Dtitle*pow(D*p*k*q*q,2))*(2*Dtitle*D*((12*(1-b*b)*(1-a*a)+4*q*a/p*(1-b*b)+4*q*b/k*(1-a*a))+2*a*b*(k/p*(1-b*b)+p/k*(1-a*a))+2*b*k/q*(2*b*b-(1+a*a))+2*a*p/q*(2*a*a-(1+b*b))+2*k/q*(q*a/p-2)*pow(1-b*b,2)*Q0b(q, k, m, E)+2*p/q*(q*b/k-2)*pow(1-a*a,2)*Q0(q, p, m, E))/(pow(1-b*b,2)*pow(1-a*a,2))+q*q*((4+k*b/q+p*a/q-2*k*p*a*b/(q*q))+k/q*(1-b*b)*(1-2*a*p/q)*Q0b(q, k, m, E)+p/q*(1-a*a)*(1-2*b*k/q)*Q0(q, p, m, E)-2*k*p*(1-b*b)*(1-a*a)*Q0b(q, k, m, E)*Q0(q, p, m, E)/(q*q))/(pow(1-b*b,2)*pow(1-a*a,2)));
+    return -2*pi*(B7(g, q, E, m, k)*Q0(q, p, m, E)/(p*q)+B7(g, q, E, m, p)*Q0b(q, k, m, E)/(k*q))-4*pi*pi*B2(g, q, E, m)*Q0b(q, k, m, E)*Q0(q, p, m, E)/(k*q*p*q)+m/(54*Dtitle*pow(D*p*k*q*q,2))*(2*Dtitle*D*((12*(1-b*b)*(1-a*a)+4*q*a/p*(1-b*b)+4*q*b/k*(1-a*a))+2*a*b*(k/p*(1-b*b)+p/k*(1-a*a))+2*b*k/q*(2*b*b-(1+a*a))+2*a*p/q*(2*a*a-(1+b*b))+2*k/q*(q*a/p-2)*pow(1-b*b,2)*Q0b(q, k, m, E)+2*p/q*(q*b/k-2)*pow(1-a*a,2)*Q0(q, p, m, E))/(pow(1-b*b,2)*pow(1-a*a,2))+q*q*((4+k*b/q+p*a/q-2*k*p*a*b/(q*q))+k/q*(1-b*b)*(1-2*a*p/q)*Q0b(q, k, m, E)+p/q*(1-a*a)*(1-2*b*k/q)*Q0(q, p, m, E)-2*k*p*(1-b*b)*(1-a*a)*Q0b(q, k, m, E)*Q0(q, p, m, E)/(q*q))/((1-b*b)*(1-a*a)));
 }
 
 Doub variablea2(Doub k, Doub p, Doub m, Doub E)
@@ -148,7 +148,8 @@ Doub variablea2(Doub k, Doub p, Doub m, Doub E)
 
 Doub B19(Doub g, Doub E, Doub m, Doub k)
 {
-    return m/(384*pow(Dtilda(k, m, E),5)*pow(Dts(g, k, E, m),3))*(4*pow(Dtilda(k, m, E),2)*Dts(g, k, E, m)*(2*Dtilda(k, m, E)-g)+pow(k,2)*(g-3*Dtilda(k, m, E))*Dts(g, k, E, m)+2*pow(k,2)*pow(Dtilda(k, m, E),2));
+    return m/(384*pow(Dtilda(k, m, E),5)*pow(Dts(g, k, E, m),3))*
+    (4*pow(Dtilda(k, m, E),2)*Dts(g, k, E, m)*(2*Dtilda(k, m, E)-g)+pow(k,2)*(g-3*Dtilda(k, m, E))*Dts(g, k, E, m)+2*pow(k,2)*pow(Dtilda(k, m, E),2));
 }
 
 Doub Q0a2(Doub k, Doub p, Doub m, Doub E)
@@ -300,31 +301,31 @@ int main()
             for (int i=1;i<N;i++)
             {
                 p=x[i];
-                diagrama2sum=diagrama2sum+w[i]*dimerp(g, p, m, E)*gamma0(i)*w[z]*partofA(q)*B7(g, q, E, m, p);
+                diagrama2sum=diagrama2sum+8*w[i]*dimerp(g, p, m, E)*gamma0(i)*w[z]*partofA(q)*B7(g, q, E, m, p);
                 for (int j=1;j<N;j++)
                 {
                     k=x[j];
-                    diagrama1sum=diagrama1sum+dimerp(g, p, m, E)*gamma0(i)*w[i]*w[j]*dimerk(g, k, m, E)*gamma0(j)*w[z]*partofA(q)*B12(g, q, E, m, p, k);
+                    diagrama1sum=diagrama1sum+16*dimerp(g, p, m, E)*gamma0(i)*w[i]*w[j]*dimerk(g, k, m, E)*gamma0(j)*w[z]*partofA(q)*B12(g, q, E, m, p, k);
                 }
             }
         }
+        
         for (int i=1;i<N;i++)
         {
             k=x[i];
-            diagramc1sum=diagramc1sum+w[i]*dimerk(g, k, m, E)*gamma0(i)*2*B19(g,E,m,k);
+            diagramc1sum=diagramc1sum+w[i]*dimerk(g, k, m, E)*gamma0(i)*2*B19(g,E,m,k)*3;
             for (int j=1;j<N;j++)
             {
                 p=x[j];
                 diagramc2sum=diagramc2sum+w[j]*dimerp(g, p, m, E)*gamma0(j)*w[i]*dimerk(g, k, m, E)*gamma0(i)*2*B24(g, E, m, p, k);
             }
         }
-        cout<<"single integral"<<'\t'<<diagrama3sum*pi/sigma0prime<<endl;
-        cout<<"double integral"<<'\t'<<diagrama2sum*pi/sigma0prime<<endl;
-        cout<<"triple integral"<<'\t'<<diagrama1sum*pi/sigma0prime<<endl;
         diagrama=(diagrama1sum+diagrama2sum+diagrama3sum)*pi/sigma0prime;
         cout<<"diagrama"<<'\t'<<diagrama<<endl;
-        //diagramc=(diagramc1sum+diagramc2sum)*pi/sigma0prime;
+        diagramc=(diagramc1sum+diagramc2sum)*pi/sigma0prime;
         //diagramc=(diagramc2sum)*pi/sigma0prime;
-        //cout<<"diagramc"<<'\t'<<diagramc<<endl;
+        cout<<"single integral"<<'\t'<<diagramc1sum*pi/sigma0prime<<endl;
+        cout<<"double integral"<<'\t'<<diagramc2sum*pi/sigma0prime<<endl;
+        cout<<"diagramc"<<'\t'<<diagramc<<endl;
     }
 }
