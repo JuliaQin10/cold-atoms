@@ -92,19 +92,19 @@ Doub check2(Doub g, Doub l, Doub q, Doub E, Doub m)
     //return 2.*pow(l,2)*pow(q,2)*m/(pi*pi*(pow(q,2)*pow(l,2)-pow((pow(q,2)+pow(l,2)-m*E),2)));
 }
 
-Doub Dtilda(Doub q, Doub m, Doub E)
+Doub Dtilde(Doub q, Doub m, Doub E)
 {
     return sqrt(.75*pow(q,2)-m*E);
 }
 
 Doub Dts(Doub g, Doub q, Doub E, Doub m)
 {
-    return g-Dtilda(q, m, E);
+    return g-Dtilde(q, m, E);
 }
 
 Doub B2(Doub g, Doub q, Doub E, Doub m)
 {
-    return m/(384*pi*pi*pow(Dtilda(q, m, E), 5)*pow(Dts(g, q, E, m), 4))*(q*q*(pow(Dts(g, q, E, m),2)-2*Dts(g, q, E, m)*Dtilda(q, m, E)+2*pow(Dtilda(q, m, E),2))+4*Dts(g, q, E, m)*pow(Dtilda(q, m, E),2)*(3*Dtilda(q, m, E)-g));
+    return m/(384*pi*pi*pow(Dtilde(q, m, E), 5)*pow(Dts(g, q, E, m), 4))*(q*q*(pow(Dts(g, q, E, m),2)-2*Dts(g, q, E, m)*Dtilde(q, m, E)+2*pow(Dtilde(q, m, E),2))+4*Dts(g, q, E, m)*pow(Dtilde(q, m, E),2)*(3*Dtilde(q, m, E)-g));
 }
 
 Doub variablea(Doub q, Doub p, Doub m, Doub E)
@@ -119,7 +119,7 @@ Doub Q0(Doub q, Doub p, Doub m, Doub E)
 
 Doub B7(Doub g, Doub q, Doub E, Doub m, Doub p)
 {
-    return -2*pi*B2(g, q, E, m)*Q0(q, p, m, E)/(p*q)-m/(27*pi*Dts(g, q, E, m)*pow(p*q,3))*((5*variablea(q, p, m, E)/pow(1-pow(variablea(q, p, m, E),2),2))+((q/p+p/q)*(1+3*pow(variablea(q, p, m, E),2))-variablea(q, p, m, E)*(3+pow(variablea(q, p, m, E),2)))/(pow(1-pow(variablea(q, p, m, E),2),3)))-m/(432*pi*pow(Dtilda(q, m, E)*Dts(g, q, E, m),3)*pow(p*q,2))*(Dtilda(q, m, E)*Dtilda(q, m, E)*Dts(g, q, E, m)*(38/(1-pow(variablea(q, p, m, E),2))+((20*q/p+8*p/q)*variablea(q, p, m, E)-4*(1+pow(variablea(q, p, m, E),2)))/pow(1-pow(variablea(q, p, m, E),2),2))-(g-3*Dtilda(q, m, E))*(9*pow(q,2)/(2*(1-pow(variablea(q, p, m, E),2)))));
+    return -2*pi*B2(g, q, E, m)*Q0(q, p, m, E)/(p*q)-m/(27*pi*Dts(g, q, E, m)*pow(p*q,3))*((5*variablea(q, p, m, E)/pow(1-pow(variablea(q, p, m, E),2),2))+((q/p+p/q)*(1+3*pow(variablea(q, p, m, E),2))-variablea(q, p, m, E)*(3+pow(variablea(q, p, m, E),2)))/(pow(1-pow(variablea(q, p, m, E),2),3)))-m/(432*pi*pow(Dtilde(q, m, E)*Dts(g, q, E, m),3)*pow(p*q,2))*(Dtilde(q, m, E)*Dtilde(q, m, E)*Dts(g, q, E, m)*(38/(1-pow(variablea(q, p, m, E),2))+((20*q/p+8*p/q)*variablea(q, p, m, E)-4*(1+pow(variablea(q, p, m, E),2)))/pow(1-pow(variablea(q, p, m, E),2),2))-(g-3*Dtilde(q, m, E))*(9*pow(q,2)/(2*(1-pow(variablea(q, p, m, E),2)))));
 }
 
 Doub variableb(Doub q, Doub k, Doub m, Doub E)
@@ -137,7 +137,7 @@ Doub B12(Doub g, Doub q, Doub E, Doub m, Doub p, Doub k)
     Doub a=variablea(q, p, m, E);
     Doub b=variableb(q, k, m, E);
     Doub D=Dts(g,q,E,m);
-    Doub Dtitle=Dtilda(q, m, E);
+    Doub Dtitle=Dtilde(q, m, E);
     return -2*pi*(B7(g, q, E, m, k)*Q0(q, p, m, E)/(p*q)+B7(g, q, E, m, p)*Q0b(q, k, m, E)/(k*q))-4*pi*pi*B2(g, q, E, m)*Q0b(q, k, m, E)*Q0(q, p, m, E)/(k*q*p*q)+m/(54*Dtitle*pow(D*p*k*q*q,2))*(2*Dtitle*D*((12*(1-b*b)*(1-a*a)+4*q*a/p*(1-b*b)+4*q*b/k*(1-a*a))+2*a*b*(k/p*(1-b*b)+p/k*(1-a*a))+2*b*k/q*(2*b*b-(1+a*a))+2*a*p/q*(2*a*a-(1+b*b))+2*k/q*(q*a/p-2)*pow(1-b*b,2)*Q0b(q, k, m, E)+2*p/q*(q*b/k-2)*pow(1-a*a,2)*Q0(q, p, m, E))/(pow(1-b*b,2)*pow(1-a*a,2))+q*q*((4+k*b/q+p*a/q-2*k*p*a*b/(q*q))+k/q*(1-b*b)*(1-2*a*p/q)*Q0b(q, k, m, E)+p/q*(1-a*a)*(1-2*b*k/q)*Q0(q, p, m, E)-2*k*p*(1-b*b)*(1-a*a)*Q0b(q, k, m, E)*Q0(q, p, m, E)/(q*q))/((1-b*b)*(1-a*a)));
 }
 
@@ -148,8 +148,8 @@ Doub variablea2(Doub k, Doub p, Doub m, Doub E)
 
 Doub B19(Doub g, Doub E, Doub m, Doub k)
 {
-    return m/(384*pow(Dtilda(k, m, E),5)*pow(Dts(g, k, E, m),3))*
-    (4*pow(Dtilda(k, m, E),2)*Dts(g, k, E, m)*(2*Dtilda(k, m, E)-g)+pow(k,2)*(g-3*Dtilda(k, m, E))*Dts(g, k, E, m)+2*pow(k,2)*pow(Dtilda(k, m, E),2));
+    return m/(384*pow(Dtilde(k, m, E),5)*pow(Dts(g, k, E, m),3))*
+    (4*pow(Dtilde(k, m, E),2)*Dts(g, k, E, m)*(2*Dtilde(k, m, E)-g)+pow(k,2)*(g-3*Dtilde(k, m, E))*Dts(g, k, E, m)+2*pow(k,2)*pow(Dtilde(k, m, E),2));
 }
 
 Doub Q0a2(Doub k, Doub p, Doub m, Doub E)
@@ -159,7 +159,15 @@ Doub Q0a2(Doub k, Doub p, Doub m, Doub E)
 
 Doub B24(Doub g, Doub E, Doub m, Doub p, Doub k)
 {
-    return -2*pi*B19(g,E,m,k)*Q0a2(k, p, m, E)/(p*k)-(m*pi/(54*Dtilda(k, m, E)*Dts(g, k, E, m)*p*k))*(1/(p*k*(1-pow(variablea2(k, p, m, E),2)))+(1/(pow(p,2))*(4*variablea2(k, p, m, E)+variablea2(k, p, m, E)*pow(p/k,2)-2*p/k*(1+pow(variablea2(k, p, m, E),2)))/(pow(1-pow(variablea2(k, p, m, E),2),2))))-(m*pi*k/(144*p*pow(Dtilda(k, m, E),3)*pow(Dts(g, k, E, m),2))*((Q0a2(k, p, m, E)/(k*k))-(2-p*variablea2(k, p, m, E)/k)/(p*k*(1-pow(variablea2(k, p, m, E),2))))*(g-3*Dtilda(k, m, E)));
+    Doub B19=B19(g,E,m,k);
+    Doub Q0a=Q0a2(k, p, m, E);
+    Doub tilde=Dtilde(k, m, E);
+    Doub Dts=Dts(g, k, E, m);
+    Doub a=variablea2(k, p, m, E);
+    Doub a2=a*a;
+    return -2*pi*B19*Q0a/(p*k)
+    -m*pi/(54*tilde*Dts*p*k)*(1/(p*k*(1-a2))+(1/(pow(p,2))*(4*a+a*pow(p/k,2)-2*p/k*(1+a2))/(pow(1-a2,2))))
+    -m*pi*k/(144*p*pow(tilde,3)*pow(Dts,2))*(Q0a/(k*k)-(2-p*a/k)/(p*k*(1-a2))*(g-3*tilde);
 }
 Doub B16(Doub k, Doub p, Doub m, Doub E)
 {
