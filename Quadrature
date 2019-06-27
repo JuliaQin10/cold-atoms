@@ -56,6 +56,31 @@ Doub inhomogenous(Doub ro, Doub g, Doub p, Doub m, Doub E)
     return (ro/2)*(g+sqrt(.75*pow(p,2)-m*E));
 }
 
+Doub dimer2(Doub g, Doub q, Doub E, Doub m)
+{
+    return (2./pi)*pow(q,2)/(sqrt(.75*pow(q,2)-m*E)-g);
+}
+
+Doub exchangeprime(Doub q, Doub p, Doub E, Doub m)
+{
+    return (2*m)/(pow(pow(q,2)+pow(p,2)-m*E,2)-pow(q,2)*pow(p,2));
+}
+
+Doub dimer2prime(Doub g, Doub q, Doub E, Doub m)
+{
+    return (m/pi)*pow(q,2)/sqrt(.75*pow(q,2)-m*E)*1./pow(sqrt(.75*pow(q,2)-m*E)-g,2);
+}
+
+Doub timesgamma0(Doub g, Doub q, Doub E, Doub m)
+{
+    return (m/(4*pi))*pow(q,2)/(pow((sqrt(.75*pow(q,2)-m*E)-g),2)*sqrt(.75*pow(q,2)-m*E));
+}
+
+Doub timesgamma0prime(Doub g, Doub q, Doub E, Doub m)
+{
+    return (1/(2*pi))*pow(q,2)/(sqrt(.75*pow(q,2)-m*E)-g);
+}
+
 int main()
 {
     Doub g=45.;
@@ -68,12 +93,18 @@ int main()
     mat A(N,N);
     mat B;
     vec gamma1(N);
+    vec productprime(N);
+    Doub sigma0prime;
     VecDoub_O x(N);
     VecDoub_O w(N);
     ofstream plot0;
     ofstream plot1;
+    ofstream plot0prime;
+    ofstream plotsigma;
     plot0.open ("gamma0.dat");
     plot1.open ("gamma1.dat");
+    plot0prime.open ("gamma0prime.dat");
+    plotsigma.open ("sigma0prime.dat");
     gauleg(0.,1000.,x,w);
     for(int i=1;i<x.size();i++)
     {
@@ -100,4 +131,47 @@ int main()
     }
     plot0.close();
     plot1.close();
+    for(int i=1;i<x.size();i++)
+    {
+        p=x[i];
+        for (int j=1;j<N;j++)
+        {
+            q=x[j];
+            productprime(i)=w[j]*dimer2(g, q, E, m)*gamma0(j)*exchangeprime(q, p, E, m)+w[j]*exchange(q,p,E,m)*gamma0(j)*dimer2prime(g, q, E, m);
+           // inprime(i,j)=productprime;
+        }
+    }
+    vec gamma0prime=LO1*productprime;
+    for(int i=1;i<x.size();i++)
+    {
+        q=x[i];
+        sigma0prime=w[i]*timesgamma0(g, q, E, m)*gamma0(i)+w[i]*timesgamma0prime(g, q, E, m)*gamma0prime(i);
+    }
+    vec normalized=(sqrt(pi/sigma0prime))*gamma0;
+    for (int i=1;i<N;i++)
+    {
+        plotsigma<<x[i]<<"\t"<<normalized(i)<<"\n";
+    }
+    plotsigma.close();
 }
+//inprime=dimer2(g, q, E, m)*gamma0(i)*exchangeprime(q, p, E, m)+exchange(q,p,E,m)*gamma0(i)*dimer2prime(g, q, E, m);
+/*    for(int i=1;i<x.size();i++)
+    {
+        q=x[i];
+        for (int j=1;j<N;j++)
+        {
+            p=x[j];
+            productprime=w[j]*(dimer2(g, q, E, m)*gamma0(j)*exchangeprime(q, p, E, m)+exchange(q,p,E,m)*gamma0(j)*dimer2prime(g, q, E, m)+exchange(q,p,E,m)*dimer2(g, q, E, m));
+            newterm(i,j)=productprime;
+        }
+    }
+    mat LOprime=identity-newterm;
+    mat LOprime1=inv(LOprime);
+    vec gamma0prime=LOprime1*newterm;
+    for (int i=1;i<N;i++)
+    {
+        plot0prime<<x[i]<<"\t"<<gamma0prime(i)<<"\n";
+    }
+    plot0prime.close();
+}
+*/
