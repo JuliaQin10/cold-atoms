@@ -68,33 +68,117 @@ Doub exchangeprime(Doub q, Doub p, Doub E, Doub m)
 
 Doub dimer2prime(Doub g, Doub q, Doub E, Doub m)
 {
-    return (m/pi)*pow(q,2)/sqrt(.75*pow(q,2)-m*E)*1./pow(sqrt(.75*pow(q,2)-m*E)-g,2);
+    return (m/pi)*pow(q,2)/(sqrt(.75*pow(q,2)-m*E)*pow(sqrt(.75*pow(q,2)-m*E)-g,2));
 }
 
 Doub timesgamma0(Doub g, Doub q, Doub E, Doub m)
 {
-    return (m/(4*pi))*pow(q,2)/(pow((sqrt(.75*pow(q,2)-m*E)-g),2)*sqrt(.75*pow(q,2)-m*E));
+    return (m/(4.*pi))*pow(q,2)/(pow((sqrt(.75*pow(q,2)-m*E)-g),2)*sqrt(.75*pow(q,2)-m*E));
 }
 
 Doub timesgamma0prime(Doub g, Doub q, Doub E, Doub m)
 {
-    return (1/(2*pi))*pow(q,2)/(sqrt(.75*pow(q,2)-m*E)-g);
+    return (1./(2.*pi))*pow(q,2)/(sqrt(.75*pow(q,2)-m*E)-g);
+}
+
+Doub check1(Doub g, Doub l, Doub E, Doub m)
+{
+    return pow(l,2)*m/(4.*pi*pow(g-sqrt(.75*pow(l,2)-m*E),2)*sqrt(.75*pow(l,2)-m*E));
+    //return pow(l,2)*m/(4.*pi*sqrt(.75*pow(l,2)-m*E));
+}
+Doub check2(Doub g, Doub l, Doub q, Doub E, Doub m)
+{
+    return 2.*pow(l,2)*pow(q,2)*m/(pi*pi*(g-sqrt(.75*pow(q,2)-m*E))*(g-sqrt(.75*pow(l,2)-m*E))*(pow(q,2)*pow(l,2)-pow((pow(q,2)+pow(l,2)-m*E),2)));
+    //return 2.*pow(l,2)*pow(q,2)*m/(pi*pi*(pow(q,2)*pow(l,2)-pow((pow(q,2)+pow(l,2)-m*E),2)));
+}
+
+Doub Dtilda(Doub q, Doub m, Doub E)
+{
+    return sqrt(.75*pow(q,2)-m*E);
+}
+
+Doub Dts(Doub g, Doub q, Doub E, Doub m)
+{
+    return g-Dtilda(q, m, E);
+}
+
+Doub B2(Doub g, Doub q, Doub E, Doub m)
+{
+    return m/(384*pi*pi*pow(Dtilda(q, m, E), 5)*pow(Dts(g, q, E, m), 4))*pow(q,2)*(pow(Dts(g, q, E, m),2)-2*Dts(g, q, E, m)*Dtilda(q, m, E)+2*pow(Dtilda(q, m, E),2))+4*Dts(g, q, E, m)*pow(Dtilda(q, m, E),2)*(3*Dtilda(q, m, E)-g);
+}
+
+Doub variablea(Doub q, Doub p, Doub m, Doub E)
+{
+    return pow(q,2)+pow(p,2)-m*E/(q*p);
+}
+
+Doub Q0(Doub q, Doub p, Doub m, Doub E)
+{
+    return 0.5*log((1+variablea(q, p, m, E))/(variablea(q, p, m, E)-1));
+}
+
+Doub B7(Doub g, Doub q, Doub E, Doub m, Doub p)
+{
+    return -2*pi*B2(g, q, E, m)*Q0(q, p, m, E)/(p*q)-m/(27*pi*Dts(g, q, E, m)*pow(p*q,3))*((5*variablea(q, p, m, E)/pow(1-pow(variablea(q, p, m, E),2),2))+((q/p+p/q)*(1+3*pow(variablea(q, p, m, E),2))-variablea(q, p, m, E)*(3+pow(variablea(q, p, m, E),2)))/(pow(1-pow(variablea(q, p, m, E),2),3)))-(m/(432*pi*pow(Dtilda(q, m, E),3)*pow(Dts(g, q, E, m),3)*pow(p*q,2))*((pow(Dtilda(q, m, E),2)*Dts(g, q, E, m)*(38/(1-pow(variablea(q, p, m, E),2))+(20*q/p+8*p/q)*(variablea(q, p, m, E)-4*(1+pow(variablea(q, p, m, E),2)))))-(g-3*Dtilda(q, m, E))*(9*pow(q,2)/(2*(1-pow(variablea(q, p, m, E),2))))));
+}
+
+Doub variableb(Doub q, Doub k, Doub m, Doub E)
+{
+    return pow(q,2)+pow(k,2)-m*E/(q*k);
+}
+
+Doub Q0b(Doub q, Doub k, Doub m, Doub E)
+{
+    return 0.5*log((1+variableb(q, k, m, E))/(variableb(q, k, m, E)-1));
+}
+
+Doub B12(Doub g, Doub q, Doub E, Doub m, Doub p, Doub k)
+{
+    return -2*pi*(B7(g, q, E, m, k)/(p*q)*Q0(q, p, m, E)+B7(g, q, E, m, p)/(k*q)*Q0b(q, k, m, E))-(4*pi*pi*B2(g, q, E, m)/(k*q)*Q0b(q, k, m, E)/(p*q)*Q0(q, p, m, E))+((m/(54*Dtilda(q, m, E)*pow(Dts(g, q, E, m),2)*pow(q,4)*pow(k,2)*pow(p,2)))*(2*Dtilda(q, m, E)*Dts(g, q, E, m))*(((12*(1-pow(variableb(q, k, m, E),2))*(1-pow(variablea(q, p, m, E),2))+4*q/p*variablea(q, p, m, E)*(1-pow(variableb(q, k, m, E),2))+4*q/k*variableb(q, k, m, E)*(1-pow(variablea(q, p, m, E),2)))+(2*variablea(q, p, m, E)*variableb(q, k, m, E))*(k/p*(1-pow(variableb(q, k, m, E),2))+p/k*(1-pow(variablea(q, p, m, E),2)))+2*variableb(q, k, m, E)*k/q*(2*pow(variableb(q, k, m, E),2)-(1+pow(variablea(q, p, m, E),2)))+2*variablea(q, p, m, E)*p/q*(2*pow(variablea(q, p, m, E),2)-(1+pow(variableb(q, k, m, E),2)))+2*k/q*(q/p*variablea(q, p, m, E)-2)*pow(1-pow(variableb(q, k, m, E),2),2)*Q0b(q, k, m, E)+2*p/q*(q/k*variableb(q, k, m, E)-2)*pow(1-pow(variablea(q, p, m, E),2),2)*Q0(q, p, m, E))*1/(pow(q-pow(variableb(q, k, m, E),2),2)*pow(1-pow(variablea(q, p, m, E),2),2))+(pow(q,2)*((4+k/q*variableb(q, k, m, E)+p/q*variablea(q, p, m, E)-2*k*p*variablea(q, p, m, E)*variableb(q, k, m, E)/(q*q))+(k/q*(1-pow(variableb(q, k, m, E),2))*(1-2*variablea(q, p, m, E)*p/q)*Q0b(q, k, m, E))+(p/q*(1-pow(variablea(q, p, m, E),2))*(1-2*variableb(q, k, m, E)*k/q)*Q0(q, p, m, E))-(2*k*p*(1-pow(variableb(q, k, m, E),2))*(1-pow(variablea(q, p, m, E),2))*Q0b(q, k, m, E)*Q0(q, p, m, E)/(q*q)))/(pow(1-pow(variableb(q, k, m, E),2),2)*pow(1-pow(variablea(q, p, m, E),2),2)))));
+}
+
+Doub variablea2(Doub k, Doub p, Doub m, Doub E)
+{
+    return pow(p,2)+pow(k,2)-m*E/(p*k);
+}
+
+Doub B19(Doub g, Doub q, Doub E, Doub m, Doub p, Doub k)
+{
+    return m/(384*pow(Dtilda(q, m, E),5)*pow(Dts(g, q, E, m),3))*4*pow(Dtilda(q, m, E),2)*Dts(g, q, E, m)*(2*Dtilda(q, m, E)-g)+pow(k,2)*(g-3*Dtilda(q, m, E))*Dts(g, q, E, m)+2*pow(k,2)*pow(Dtilda(q, m, E),2);
+}
+
+Doub Q0a2(Doub k, Doub p, Doub m, Doub E)
+{
+    return 0.5*log(1+variablea2(k, p, m, E)/(variablea2(k, p, m, E)-1));
+}
+
+Doub B24(Doub g, Doub q, Doub E, Doub m, Doub p, Doub k)
+{
+    return -2*pi*B19(g, q, E, m, p, k)*Q0a2(k, p, m, E)/(p*k)-(m*pi/(54*Dtilda(q, m, E)*Dts(g, q, E, m)*p*k))*(1/(p*k*(1-pow(variablea2(k, p, m, E),2)))+(1/(pow(p,2))*(4*variablea2(k, p, m, E)+variablea2(k, p, m, E)*pow(p/k,2)-2*p/k*(1+pow(variablea2(k, p, m, E),2)))/(pow(1-pow(variablea2(k, p, m, E),2),2))))-(m*pi*k/(144*p*pow(Dtilda(q, m, E),3)*pow(Dts(g, q, E, m),2))*((Q0a2(k, p, m, E)/(k*k))-(2-p*variablea2(k, p, m, E)/k)/(p*k*(1-pow(variablea2(k, p, m, E),2))))*(g-3*Dtilda(q, m, E)));
+}
+Doub B16(Doub k, Doub p, Doub m, Doub E)
+{
+    return -2*m*pi/(9*pow(p,3)*pow(k,3)*pow(1-pow(variablea2(k, p, m, E),2),2))*((4*variablea2(k, p, m, E)/(3*(1-pow(variablea2(k, p, m, E),2))))-2*variablea2(k, p, m, E)-(pow(p,2)+pow(k,2))*(1+3*pow(variablea2(k, p, m, E),2))/(3*p*k*(1-pow(variablea2(k, p, m, E),2))))*-2/3;
+}
+
+Doub dimerp(Doub g, Doub q, Doub m, Doub E)
+{
+    return 1/(g-sqrt(.75*pow(q,2)-m*E));
 }
 
 int main()
 {
     Doub g=45.;
     Doub m=938.;
-    Doub q,p;
+    Doub q,p,l,k;
     Doub E=-8.;
     Doub ro=.01;
-    Doub product;
+    Doub product, sigma0prime, check1sum, check2sum;
     int N=100;
     mat A(N,N);
     mat B;
     vec gamma1(N);
     vec productprime(N);
-    Doub sigma0prime;
     int cutoff=0;
     VecDoub_O x(N);
     VecDoub_O w(N);
@@ -102,9 +186,11 @@ int main()
     ofstream plot1;
     ofstream plot0prime;
     ofstream plotsigma;
-    for (int i=1;i<21;i++)
+    for (int i=1;i<2;i++)
     {
         sigma0prime=0;
+        check1sum=0;
+        check2sum=0;
         cutoff=cutoff+1000;
         plot0.open ("gamma0_"+to_string(cutoff)+".dat");
         plot1.open ("gamma1_"+to_string(cutoff)+".dat");
@@ -137,10 +223,12 @@ int main()
         for(int i=1;i<x.size();i++)
         {
             p=x[i];
+            productprime(i)=0.0;
             for (int j=1;j<N;j++)
             {
                 q=x[j];
-                productprime(i)=w[j]*dimer2(g, q, E, m)*gamma0(j)*exchangeprime(q, p, E, m)+w[j]*exchange(q,p,E,m)*gamma0(j)*dimer2prime(g, q, E, m);
+                productprime(i)=productprime(i)+w[j]*dimer2(g, q, E, m)*gamma0(j)*exchangeprime(q, p, E, m)+w[j]*exchange(q,p,E,m)*gamma0(j)*dimer2prime(g, q, E, m);
+                //productprime(i)=w[j]*dimer2(g, q, E, m)*gamma0(j)*exchangeprime(q, p, E, m);//+w[j]*exchange(q,p,E,m)*gamma0(j)*dimer2prime(g, q, E, m);
             }
         }
         vec gamma0prime=LO1*productprime;
@@ -152,32 +240,37 @@ int main()
         vec normalized=(sqrt(pi/sigma0prime))*gamma0;
         for (int i=1;i<N;i++)
         {
+            plot0prime<<x[i]<<"\t"<<gamma0prime(i)<<"\n";
             plotsigma<<x[i]<<"\t"<<normalized(i)<<"\n";
         }
+        for (int i=1;i<N;i++)
+        {
+            l=x[i];
+            check1sum=check1sum+(w[i]*check1(g, l, E, m)*gamma0(i)*gamma0(i)/sigma0prime);
+        }
+        for (int i=1;i<N;i++)
+        {
+            l=x[i];
+            for (int j=1;j<N;j++)
+            {
+                q=x[j];
+                check2sum=check2sum+w[j]*w[i]*check2(g, l, q, E, m)*gamma0(j)*gamma0(i)/sigma0prime;
+            }
+        }
+        cout<<"normalization"<<'\t'<<(check1sum)<<'\t'<<check2sum<<'\t'<<check1sum-check2sum<<endl;
         plot0.close();
         plot1.close();
         plot0prime.close();
         plotsigma.close();
-    }
-}
-//inprime=dimer2(g, q, E, m)*gamma0(i)*exchangeprime(q, p, E, m)+exchange(q,p,E,m)*gamma0(i)*dimer2prime(g, q, E, m);
-/*    for(int i=1;i<x.size();i++)
-    {
-        q=x[i];
-        for (int j=1;j<N;j++)
+        for (int i=1;i<N;i++)
         {
-            p=x[j];
-            productprime=w[j]*(dimer2(g, q, E, m)*gamma0(j)*exchangeprime(q, p, E, m)+exchange(q,p,E,m)*gamma0(j)*dimer2prime(g, q, E, m)+exchange(q,p,E,m)*dimer2(g, q, E, m));
-            newterm(i,j)=productprime;
+            p=x[i];
+            for (int j=1;j<N;j++)
+            {
+                k=x[j];
+                
+            }
         }
     }
-    mat LOprime=identity-newterm;
-    mat LOprime1=inv(LOprime);
-    vec gamma0prime=LOprime1*newterm;
-    for (int i=1;i<N;i++)
-    {
-        plot0prime<<x[i]<<"\t"<<gamma0prime(i)<<"\n";
-    }
-    plot0prime.close();
 }
-*/
+
