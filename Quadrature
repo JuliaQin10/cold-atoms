@@ -1,5 +1,7 @@
 #include "nr3.h"
 #include "gamma.h"
+#include <armadillo>
+using namespace arma;
 //In preface, Numerical explains that they deliberately exclude #include statements
 //Found include statements at nr.com/dependencies
 //Retrieved files from website
@@ -35,29 +37,41 @@ void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w) //x and w 
         w[n-1-i]=w[i]; //and its symmetric counterpart.
     }
 }
-Doub f(Doub g, Doub p, Doub E, Doub m)
+Doub dimer(Doub g, Doub p, Doub E, Doub m)
 {
     return (2/atan(1))*pow(p,2)/(sqrt(.75*pow(p,2)-m*E)-g);
 }
 
 
-Doub M(Doub q, Doub p, Doub E, Doub m)
+Doub exchange(Doub q, Doub p, Doub E, Doub m)
 {
     return (1./(q*p))*log((pow(q,2)+pow(p,2)+q*p-m*E)/(pow(q,2)+pow(p,2)-q*p-m*E));
 }
 
 int main() //take the function evaluated at the mesh points, times the appropriate weight, and then sum everything up, result will be equivalent to a good approximation of the integral
 {
-    Doub g=23;
-    Doub m=34;
-    Doub E=-48;
-    Doub q=58;
-    Doub sum=0;
+    Doub g=1;
+    Doub m=1;
+    Doub q; //does this error message mean anything?
+    Doub E=-2;
+    Doub product;
     int N=5;
+    mat A(N,N);
+    mat B;
     VecDoub_O x(N);//constructed vector x and vector w
     VecDoub_O w(N);
     gauleg(0.,1000.,x,w); //gualeg gives the tools to solves an integral
-    for(int i=0;i<x.size();i++)
-        sum=sum+w[i]*f(g,x[i],E,m)*M(q,x[i],E,m);
-    cout<<1+sum<<"\n";
+    for(int i=1;i<x.size();i++)
+    {
+        q=x[i];
+        product=dimer(g,x[i],E,m)*exchange(q,x[i],E,m);
+        for (int j=1;j<N;j++)
+            A(j,i)=product;
+    }
+    B.ones(1, N);//construct vector B of all 1's, n rows
+//    mat A1=inv(A); //take inverse of matrix A
+    cout<<A*trans(B); //multiply vector B by the matrix A-1
+    //output column vector with A*tranpose B
+    //cout<<1+sum<<"\n";
 }
+
