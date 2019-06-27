@@ -1,10 +1,13 @@
 #include "nr3.h"
 #include "gamma.h"
 #include <armadillo>
+#include <fstream>
+#include <list>
 using namespace arma;
 //In preface, Numerical explains that they deliberately exclude #include statements
 //Found include statements at nr.com/dependencies
 //Retrieved files from website
+double pi=4.*atan(1);
 
 void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w) //x and w are customized variables defined in previous files
 //Doub not a fundamental type, it's a function defined in nr3.h and gamma.h
@@ -39,7 +42,7 @@ void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w) //x and w 
 }
 Doub dimer(Doub g, Doub p, Doub E, Doub m)
 {
-    return (2/atan(1))*pow(p,2)/(sqrt(.75*pow(p,2)-m*E)-g);
+    return (2./pi)*pow(p,2)/(sqrt(.75*pow(p,2)-m*E)-g);
 }
 
 
@@ -50,28 +53,42 @@ Doub exchange(Doub q, Doub p, Doub E, Doub m)
 
 int main() //take the function evaluated at the mesh points, times the appropriate weight, and then sum everything up, result will be equivalent to a good approximation of the integral
 {
-    Doub g=1;
-    Doub m=1;
-    Doub q; //does this error message mean anything?
-    Doub E=-2;
+    Doub g=45.;
+    Doub m=938.;
+    Doub q,p; //does this error message mean anything?
+    Doub E=-8.;
     Doub product;
-    int N=5;
+    int N=10000;
     mat A(N,N);
     mat B;
     VecDoub_O x(N);//constructed vector x and vector w
     VecDoub_O w(N);
-    gauleg(0.,1000.,x,w); //gualeg gives the tools to solves an integral
+    ofstream file;
+    file.open ("matrix_data.dat");
+    gauleg(0.,100000.,x,w); //gualeg gives the tools to solves an integral
     for(int i=1;i<x.size();i++)
     {
         q=x[i];
-        product=dimer(g,x[i],E,m)*exchange(q,x[i],E,m);
         for (int j=1;j<N;j++)
-            A(j,i)=product;
+        {
+            p=x[j];
+            product=w[j]*dimer(g,p,E,m)*exchange(q,p,E,m); //removed weight for now
+            A(i,j)=product;
+        }
     }
+    mat identity (N, N,fill::eye);
+    mat LO=identity-A;
     B.ones(1, N);//construct vector B of all 1's, n rows
-//    mat A1=inv(A); //take inverse of matrix A
-    cout<<A*trans(B); //multiply vector B by the matrix A-1
+    mat LO1=inv(LO); //take inverse of matrix A
+    //cout<<LO1*trans(B); //multiply vector B by the matrix A-1
     //output column vector with A*tranpose B
     //cout<<1+sum<<"\n";
+    mat gamma0=LO1*trans(B);
+    for (int i=1;i<N;i++)
+        file<<x[i]<<"\t"<<gamma0(i)<<"\n";
+    //file<<setw(50)<<gamma;
+    file.close();
 }
 
+//first column, print value of q
+//second column, print value of g
