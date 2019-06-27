@@ -104,7 +104,7 @@ Doub Dts(Doub g, Doub q, Doub E, Doub m)
 
 Doub B2(Doub g, Doub q, Doub E, Doub m)
 {
-    return m/(384*pi*pi*pow(Dtilda(q, m, E), 5)*pow(Dts(g, q, E, m), 4))*(pow(q,2)*(pow(Dts(g, q, E, m),2)-2*Dts(g, q, E, m)*Dtilda(q, m, E)+2*pow(Dtilda(q, m, E),2))+4*Dts(g, q, E, m)*pow(Dtilda(q, m, E),2)*(3*Dtilda(q, m, E)-g));
+    return m/(384*pi*pi*pow(Dtilda(q, m, E), 5)*pow(Dts(g, q, E, m), 4))*(q*q*(pow(Dts(g, q, E, m),2)-2*Dts(g, q, E, m)*Dtilda(q, m, E)+2*pow(Dtilda(q, m, E),2))+4*Dts(g, q, E, m)*pow(Dtilda(q, m, E),2)*(3*Dtilda(q, m, E)-g));
 }
 
 Doub variablea(Doub q, Doub p, Doub m, Doub E)
@@ -120,13 +120,11 @@ Doub Q0(Doub q, Doub p, Doub m, Doub E)
 Doub B7(Doub g, Doub q, Doub E, Doub m, Doub p)
 {
     return -2*pi*B2(g, q, E, m)*Q0(q, p, m, E)/(p*q)-m/(27*pi*Dts(g, q, E, m)*pow(p*q,3))*((5*variablea(q, p, m, E)/pow(1-pow(variablea(q, p, m, E),2),2))+((q/p+p/q)*(1+3*pow(variablea(q, p, m, E),2))-variablea(q, p, m, E)*(3+pow(variablea(q, p, m, E),2)))/(pow(1-pow(variablea(q, p, m, E),2),3)))-m/(432*pi*pow(Dtilda(q, m, E)*Dts(g, q, E, m),3)*pow(p*q,2))*(Dtilda(q, m, E)*Dtilda(q, m, E)*Dts(g, q, E, m)*(38/(1-pow(variablea(q, p, m, E),2))+((20*q/p+8*p/q)*variablea(q, p, m, E)-4*(1+pow(variablea(q, p, m, E),2)))/pow(1-pow(variablea(q, p, m, E),2),2))-(g-3*Dtilda(q, m, E))*(9*pow(q,2)/(2*(1-pow(variablea(q, p, m, E),2)))));
-    /*return -2*pi*B2(g, q, E, m)*Q0(q, p, m, E)/(p*q)-m/(27*pi*Dts(g, q, E, m)*pow(p*q,3))*((5*variablea(q, p, m, E)/pow(1-pow(variablea(q, p, m, E),2),2))+((q/p+p/q)*(1+3*pow(variablea(q, p, m, E),2))-variablea(q, p, m, E)*(3+pow(variablea(q, p, m, E),2)))/(pow(1-pow(variablea(q, p, m, E),2),3)))-(m/(432*pi*pow(Dtilda(q, m, E),3)*pow(Dts(g, q, E, m),3)*pow(p*q,2))*((pow(Dtilda(q, m, E),2)*Dts(g, q, E, m)*(38/(1-pow(variablea(q, p, m, E),2))+((20*q)/p+(8*p)/q)*(variablea(q, p, m, E)-4*(1+pow(variablea(q, p, m, E),2)))))-(g-3*Dtilda(q, m, E))*(9*pow(q,2)/(2*(1-pow(variablea(q, p, m, E),2))))));*/
-
 }
 
 Doub variableb(Doub q, Doub k, Doub m, Doub E)
 {
-    return pow(q,2)+pow(k,2)-m*E/(q*k);
+    return (pow(q,2)+pow(k,2)-m*E)/(q*k);
 }
 
 Doub Q0b(Doub q, Doub k, Doub m, Doub E)
@@ -136,7 +134,11 @@ Doub Q0b(Doub q, Doub k, Doub m, Doub E)
 
 Doub B12(Doub g, Doub q, Doub E, Doub m, Doub p, Doub k)
 {
-    return -2*pi*(B7(g, q, E, m, k)/(p*q)*Q0(q, p, m, E)+B7(g, q, E, m, p)/(k*q)*Q0b(q, k, m, E))-(4*pi*pi*B2(g, q, E, m)/(k*q)*Q0b(q, k, m, E)/(p*q)*Q0(q, p, m, E))+((m/(54*Dtilda(q, m, E)*pow(Dts(g, q, E, m),2)*pow(q,4)*pow(k,2)*pow(p,2)))*(2*Dtilda(q, m, E)*Dts(g, q, E, m))*(((12*(1-pow(variableb(q, k, m, E),2))*(1-pow(variablea(q, p, m, E),2))+4*q/p*variablea(q, p, m, E)*(1-pow(variableb(q, k, m, E),2))+4*q/k*variableb(q, k, m, E)*(1-pow(variablea(q, p, m, E),2)))+(2*variablea(q, p, m, E)*variableb(q, k, m, E))*(k/p*(1-pow(variableb(q, k, m, E),2))+p/k*(1-pow(variablea(q, p, m, E),2)))+2*variableb(q, k, m, E)*k/q*(2*pow(variableb(q, k, m, E),2)-(1+pow(variablea(q, p, m, E),2)))+2*variablea(q, p, m, E)*p/q*(2*pow(variablea(q, p, m, E),2)-(1+pow(variableb(q, k, m, E),2)))+2*k/q*(q/p*variablea(q, p, m, E)-2)*pow(1-pow(variableb(q, k, m, E),2),2)*Q0b(q, k, m, E)+2*p/q*(q/k*variableb(q, k, m, E)-2)*pow(1-pow(variablea(q, p, m, E),2),2)*Q0(q, p, m, E))*1/(pow(q-pow(variableb(q, k, m, E),2),2)*pow(1-pow(variablea(q, p, m, E),2),2))+(pow(q,2)*((4+k/q*variableb(q, k, m, E)+p/q*variablea(q, p, m, E)-2*k*p*variablea(q, p, m, E)*variableb(q, k, m, E)/(q*q))+(k/q*(1-pow(variableb(q, k, m, E),2))*(1-2*variablea(q, p, m, E)*p/q)*Q0b(q, k, m, E))+(p/q*(1-pow(variablea(q, p, m, E),2))*(1-2*variableb(q, k, m, E)*k/q)*Q0(q, p, m, E))-(2*k*p*(1-pow(variableb(q, k, m, E),2))*(1-pow(variablea(q, p, m, E),2))*Q0b(q, k, m, E)*Q0(q, p, m, E)/(q*q)))/(pow(1-pow(variableb(q, k, m, E),2),2)*pow(1-pow(variablea(q, p, m, E),2),2)))));
+    Doub a=variablea(q, p, m, E);
+    Doub b=variableb(q, k, m, E);
+    Doub D=Dts(g,q,E,m);
+    Doub Dtitle=Dtilda(q, m, E);
+    return -2*pi*(B7(g, q, E, m, k)*Q0(q, p, m, E)/(p*q)+B7(g, q, E, m, p)*Q0b(q, k, m, E)/(k*q))-4*pi*pi*B2(g, q, E, m)*Q0b(q, k, m, E)*Q0(q, p, m, E)/(k*q*p*q)+m/(54*Dtitle*pow(D*p*k*q*q,2))*(2*Dtitle*D*((12*(1-b*b)*(1-a*a)+4*q*a/p*(1-b*b)+4*q*b/k*(1-a*a))+2*a*b*(k/p*(1-b*b)+p/k*(1-a*a))+2*b*k/q*(2*b*b-(1+a*a))+2*a*p/q*(2*a*a-(1+b*b))+2*k/q*(q*a/p-2)*pow(1-b*b,2)*Q0b(q, k, m, E)+2*p/q*(q*b/k-2)*pow(1-a*a,2)*Q0(q, p, m, E))/(pow(1-b*b,2)*pow(1-a*a,2))+q*q*((4+k*b/q+p*a/q-2*k*p*a*b/(q*q))+k/q*(1-b*b)*(1-2*a*p/q)*Q0b(q, k, m, E)+p/q*(1-a*a)*(1-2*b*k/q)*Q0(q, p, m, E)-2*k*p*(1-b*b)*(1-a*a)*Q0b(q, k, m, E)*Q0(q, p, m, E)/(q*q))/(pow(1-b*b,2)*pow(1-a*a,2)));
 }
 
 Doub variablea2(Doub k, Doub p, Doub m, Doub E)
@@ -144,9 +146,9 @@ Doub variablea2(Doub k, Doub p, Doub m, Doub E)
     return (pow(p,2)+pow(k,2)-m*E)/(p*k);
 }
 
-Doub B19(Doub g, Doub q, Doub E, Doub m, Doub p, Doub k)
+Doub B19(Doub g, Doub E, Doub m, Doub k)
 {
-    return m/(384*pow(Dtilda(q, m, E),5)*pow(Dts(g, q, E, m),3))*4*pow(Dtilda(q, m, E),2)*Dts(g, q, E, m)*(2*Dtilda(q, m, E)-g)+pow(k,2)*(g-3*Dtilda(q, m, E))*Dts(g, q, E, m)+2*pow(k,2)*pow(Dtilda(q, m, E),2);
+    return m/(384*pow(Dtilda(k, m, E),5)*pow(Dts(g, k, E, m),3))*(4*pow(Dtilda(k, m, E),2)*Dts(g, k, E, m)*(2*Dtilda(k, m, E)-g)+pow(k,2)*(g-3*Dtilda(k, m, E))*Dts(g, k, E, m)+2*pow(k,2)*pow(Dtilda(k, m, E),2));
 }
 
 Doub Q0a2(Doub k, Doub p, Doub m, Doub E)
@@ -154,9 +156,9 @@ Doub Q0a2(Doub k, Doub p, Doub m, Doub E)
     return 0.5*log(1+variablea2(k, p, m, E)/(variablea2(k, p, m, E)-1));
 }
 
-Doub B24(Doub g, Doub q, Doub E, Doub m, Doub p, Doub k)
+Doub B24(Doub g, Doub E, Doub m, Doub p, Doub k)
 {
-    return -2*pi*B19(g, q, E, m, p, k)*Q0a2(k, p, m, E)/(p*k)-(m*pi/(54*Dtilda(q, m, E)*Dts(g, q, E, m)*p*k))*(1/(p*k*(1-pow(variablea2(k, p, m, E),2)))+(1/(pow(p,2))*(4*variablea2(k, p, m, E)+variablea2(k, p, m, E)*pow(p/k,2)-2*p/k*(1+pow(variablea2(k, p, m, E),2)))/(pow(1-pow(variablea2(k, p, m, E),2),2))))-(m*pi*k/(144*p*pow(Dtilda(q, m, E),3)*pow(Dts(g, q, E, m),2))*((Q0a2(k, p, m, E)/(k*k))-(2-p*variablea2(k, p, m, E)/k)/(p*k*(1-pow(variablea2(k, p, m, E),2))))*(g-3*Dtilda(q, m, E)));
+    return -2*pi*B19(g,E,m,k)*Q0a2(k, p, m, E)/(p*k)-(m*pi/(54*Dtilda(k, m, E)*Dts(g, k, E, m)*p*k))*(1/(p*k*(1-pow(variablea2(k, p, m, E),2)))+(1/(pow(p,2))*(4*variablea2(k, p, m, E)+variablea2(k, p, m, E)*pow(p/k,2)-2*p/k*(1+pow(variablea2(k, p, m, E),2)))/(pow(1-pow(variablea2(k, p, m, E),2),2))))-(m*pi*k/(144*p*pow(Dtilda(k, m, E),3)*pow(Dts(g, k, E, m),2))*((Q0a2(k, p, m, E)/(k*k))-(2-p*variablea2(k, p, m, E)/k)/(p*k*(1-pow(variablea2(k, p, m, E),2))))*(g-3*Dtilda(k, m, E)));
 }
 Doub B16(Doub k, Doub p, Doub m, Doub E)
 {
@@ -175,7 +177,7 @@ Doub dimerk(Doub g, Doub k, Doub m, Doub E)
 
 Doub partofA(Doub q)
 {
-    return pow(q,2)/3;
+    return pow(q,2)*2/3;
 }
 
 int main()
@@ -185,13 +187,13 @@ int main()
     Doub q,p,l,k;
     Doub E=-8.;
     Doub ro=.01;
-    Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum;
+    Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum,diagramc1sum,diagramc2sum,diagramc;
     int N=100;
     mat A(N,N);
     mat B;
     vec gamma1(N);
     vec productprime(N);
-    int cutoff=0;
+    int cutoff=100;
     VecDoub_O x(N);
     VecDoub_O w(N);
     ofstream plot0;
@@ -207,7 +209,9 @@ int main()
         diagrama1sum=0;
         diagrama2sum=0;
         diagrama3sum=0;
-        cutoff=cutoff+1000;
+        diagramc1sum=0;
+        diagramc2sum=0;
+        cutoff=cutoff+100;
         plot0.open ("gamma0_"+to_string(cutoff)+".dat");
         plot1.open ("gamma1_"+to_string(cutoff)+".dat");
         plot0prime.open ("gamma0prime_"+to_string(cutoff)+".dat");
@@ -272,6 +276,7 @@ int main()
                 check2sum=check2sum+w[j]*w[i]*check2(g, l, q, E, m)*gamma0(j)*gamma0(i)/sigma0prime;
             }
         }
+        cout<<"cutoff"<<'\t'<<cutoff<<endl;
         cout<<"normalization"<<'\t'<<(check1sum)<<'\t'<<check2sum<<'\t'<<check1sum-check2sum<<endl;
         plot0.close();
         plot1.close();
@@ -295,7 +300,7 @@ int main()
             for (int i=1;i<N;i++)
             {
                 p=x[i];
-                diagrama2sum=diagrama2sum+w[i]*dimerp(g, p, m, E)/2*gamma0(i)*w[z]*partofA(q)*B7(g, q, E, m, p);
+                diagrama2sum=diagrama2sum+w[i]*dimerp(g, p, m, E)*gamma0(i)*w[z]*partofA(q)*B7(g, q, E, m, p);
                 for (int j=1;j<N;j++)
                 {
                     k=x[j];
@@ -303,11 +308,23 @@ int main()
                 }
             }
         }
-        diagrama=(diagrama2sum)*pi/sigma0prime;
-        //        diagrama=(diagrama1sum+diagrama2sum+diagrama3sum)*pi/sigma0prime;
+        for (int i=1;i<N;i++)
+        {
+            k=x[i];
+            diagramc1sum=diagramc1sum+w[i]*dimerk(g, k, m, E)*gamma0(i)*2*B19(g,E,m,k);
+            for (int j=1;j<N;j++)
+            {
+                p=x[j];
+                diagramc2sum=diagramc2sum+w[j]*dimerp(g, p, m, E)*gamma0(j)*w[i]*dimerk(g, k, m, E)*gamma0(i)*2*B24(g, E, m, p, k);
+            }
+        }
+        cout<<"single integral"<<'\t'<<diagrama3sum*pi/sigma0prime<<endl;
+        cout<<"double integral"<<'\t'<<diagrama2sum*pi/sigma0prime<<endl;
+        cout<<"triple integral"<<'\t'<<diagrama1sum*pi/sigma0prime<<endl;
+        diagrama=(diagrama1sum+diagrama2sum+diagrama3sum)*pi/sigma0prime;
         cout<<"diagrama"<<'\t'<<diagrama<<endl;
+        //diagramc=(diagramc1sum+diagramc2sum)*pi/sigma0prime;
+        //diagramc=(diagramc2sum)*pi/sigma0prime;
+        //cout<<"diagramc"<<'\t'<<diagramc<<endl;
     }
 }
-
-//do I need to sum up the integrals seperately?
-
