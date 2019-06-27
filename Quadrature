@@ -10,7 +10,7 @@ void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w) //x and w 
 {
     const Doub EPS=1.0e-14; //EPS is the relative precision.
     Doub z1,z,xm,xl,pp,p3,p2,p1;
-    Int n=x.size(); //how many mesh points we have
+    Int n=x.size(); //sets n to the number of elemetns in x
     Int m=(n+1)/2; //The roots are symmetric in the interval, so
     xm=0.5*(x2+x1); //we only have to find half of them.
     xl=0.5*(x2-x1);
@@ -35,14 +35,29 @@ void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w) //x and w 
         w[n-1-i]=w[i]; //and its symmetric counterpart.
     }
 }
+Doub f(Doub g, Doub p, Doub E, Doub m)
+{
+    return (2/atan(1))*pow(p,2)/(sqrt(.75*pow(p,2)-m*E)-g);
+}
+
+
+Doub M(Doub q, Doub p, Doub E, Doub m)
+{
+    return (1./(q*p))*log((pow(q,2)+pow(p,2)+q*p-m*E)/(pow(q,2)+pow(p,2)-q*p-m*E));
+}
 
 int main() //take the function evaluated at the mesh points, times the appropriate weight, and then sum everything up, result will be equivalent to a good approximation of the integral
 {
-    VecDoub x(3);//constructed vector x and vector w
-    VecDoub w(3);
-    gauleg(0.,7.,x,w); //gualeg gives the tools to solves an integral
+    Doub g=23;
+    Doub m=34;
+    Doub E=-48;
+    Doub q=58;
+    Doub sum=0;
+    int N=5;
+    VecDoub_O x(N);//constructed vector x and vector w
+    VecDoub_O w(N);
+    gauleg(0.,1000.,x,w); //gualeg gives the tools to solves an integral
     for(int i=0;i<x.size();i++)
-        cout<<x[i]<<endl;
-    cout<<endl;
+        sum=sum+w[i]*f(g,x[i],E,m)*M(q,x[i],E,m);
+    cout<<1+sum<<"\n";
 }
-
