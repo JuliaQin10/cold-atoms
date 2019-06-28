@@ -29,7 +29,7 @@ void gauleg(const Doub x1, const Doub x2, VecDoub_O &x, VecDoub_O &w) //x and w 
                 p2=p1;
                 p1=((2.0*j+1.0)*z*p2-j*p3)/(j+1);
             }
-           //p1 is now the desired Legendre polynomial. We next compute pp, its derivative, by a standard relation involving also p2, the polynomial of one lower order.
+            //p1 is now the desired Legendre polynomial. We next compute pp, its derivative, by a standard relation involving also p2, the polynomial of one lower order.
             pp=n*(z*p1-p2)/(z*z-1.0);
             z1=z;
             z=z1-p1/pp; //Newton’s method.
@@ -159,15 +159,15 @@ Doub Q0a2(Doub k, Doub p, Doub m, Doub E)
 
 Doub B24(Doub g, Doub E, Doub m, Doub p, Doub k)
 {
-    Doub B19=B19(g,E,m,k);
+    Doub B_19=B19(g,E,m,k);
     Doub Q0a=Q0a2(k, p, m, E);
     Doub tilde=Dtilde(k, m, E);
-    Doub Dts=Dts(g, k, E, m);
+    Doub D=Dts(g, k, E, m);
     Doub a=variablea2(k, p, m, E);
     Doub a2=a*a;
-    return -2*pi*B19*Q0a/(p*k)
-    -m*pi/(54*tilde*Dts*p*k)*(1/(p*k*(1-a2))+(1/(pow(p,2))*(4*a+a*pow(p/k,2)-2*p/k*(1+a2))/(pow(1-a2,2))))
-    -m*pi*k/(144*p*pow(tilde,3)*pow(Dts,2))*(Q0a/(k*k)-(2-p*a/k)/(p*k*(1-a2))*(g-3*tilde);
+    return -2*pi*B_19*Q0a/(p*k);
+    //-m*pi/(54*tilde*D*p*k)*(1/(p*k*(1-a2))+(1/(pow(p,2))*(4*a+a*pow(p/k,2)-2*p/k*(1+a2))/(pow(1-a2,2))))
+    //-m*pi*k/(144*p*pow(tilde,3)*pow(D,2))*(Q0a/(k*k)-(2-p*a/k)/(p*k*(1-a2)))*(g-3*tilde);
 }
 Doub B16(Doub k, Doub p, Doub m, Doub E)
 {
@@ -337,3 +337,4 @@ int main()
         cout<<"diagramc"<<'\t'<<diagramc<<endl;
     }
 }
+
