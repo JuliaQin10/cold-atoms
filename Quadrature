@@ -154,7 +154,7 @@ Doub B19(Doub g, Doub E, Doub m, Doub k)
 
 Doub Q0a2(Doub k, Doub p, Doub m, Doub E)
 {
-    return 0.5*log(1+variablea2(k, p, m, E)/(variablea2(k, p, m, E)-1));
+    return 0.5*log((1+variablea2(k, p, m, E))/(variablea2(k, p, m, E)-1));
 }
 
 Doub B24(Doub g, Doub E, Doub m, Doub p, Doub k)
@@ -165,10 +165,11 @@ Doub B24(Doub g, Doub E, Doub m, Doub p, Doub k)
     Doub D=Dts(g, k, E, m);
     Doub a=variablea2(k, p, m, E);
     Doub a2=a*a;
-    return -2*pi*B_19*Q0a/(p*k);
-    //-m*pi/(54*tilde*D*p*k)*(1/(p*k*(1-a2))+(1/(pow(p,2))*(4*a+a*pow(p/k,2)-2*p/k*(1+a2))/(pow(1-a2,2))))
-    //-m*pi*k/(144*p*pow(tilde,3)*pow(D,2))*(Q0a/(k*k)-(2-p*a/k)/(p*k*(1-a2)))*(g-3*tilde);
+    return -2*pi*B_19*Q0a/(p*k)
+    -m*pi/(54*tilde*D*p*k)*(1/(p*k*(1-a2))+(1/(pow(p,2))*(4*a+a*pow(p/k,2)-2*p/k*(1+a2))/(pow(1-a2,2))))
+    -m*pi*k/(144*p*pow(tilde,3)*pow(D,2))*(Q0a/(k*k)-(2-p*a/k)/(p*k*(1-a2)))*(g-3*tilde);
 }
+
 Doub B16(Doub k, Doub p, Doub m, Doub E)
 {
     return -2*m*pi/(9*pow(p,3)*pow(k,3)*pow(1-pow(variablea2(k, p, m, E),2),2))*((4*variablea2(k, p, m, E)/(3*(1-pow(variablea2(k, p, m, E),2))))-2*variablea2(k, p, m, E)-(pow(p,2)+pow(k,2))*(1+3*pow(variablea2(k, p, m, E),2))/(3*p*k*(1-pow(variablea2(k, p, m, E),2))))*-2/3;
@@ -330,10 +331,10 @@ int main()
         }
         diagrama=(diagrama1sum+diagrama2sum+diagrama3sum)*pi/sigma0prime;
         cout<<"diagrama"<<'\t'<<diagrama<<endl;
-        diagramc=(diagramc1sum+diagramc2sum)*pi/sigma0prime;
+        diagramc=(diagramc1sum*(4./9.)+diagramc2sum*(16./3.))*pi/sigma0prime;
         //diagramc=(diagramc2sum)*pi/sigma0prime;
-        cout<<"single integral"<<'\t'<<diagramc1sum*pi/sigma0prime<<endl;
-        cout<<"double integral"<<'\t'<<diagramc2sum*pi/sigma0prime<<endl;
+        //cout<<"single integral"<<'\t'<<diagramc1sum*(4./9.)*pi/sigma0prime<<endl;
+        //cout<<"double integral"<<'\t'<<diagramc2sum*(16./3.)*pi/sigma0prime<<endl;
         cout<<"diagramc"<<'\t'<<diagramc<<endl;
     }
 }
