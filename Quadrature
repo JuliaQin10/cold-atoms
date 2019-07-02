@@ -192,12 +192,12 @@ Doub partofA(Doub q)
 
 int main()
 {
-    Doub g=45.;
+    Doub g=0.;
     Doub m=938.;
     Doub q,p,l,k;
     Doub E=-8.;
     Doub ro=.01;
-    Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum,diagramc1sum,diagramc2sum,diagramc;
+    Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum,diagramc1sum,diagramc2sum,diagramc,checkdiagram;
     int N=100;
     mat A(N,N);
     mat B;
@@ -210,7 +210,7 @@ int main()
     ofstream plot1;
     ofstream plot0prime;
     ofstream plotsigma;
-    for (int i=1;i<11;i++)
+    for (int i=1;i<31;i++)
     {
         sigma0prime=0;
         check1sum=0;
@@ -332,10 +332,10 @@ int main()
         diagrama=(diagrama1sum+diagrama2sum+diagrama3sum)*pi/sigma0prime;
         cout<<"diagrama"<<'\t'<<diagrama<<endl;
         diagramc=(diagramc1sum*(4./9.)+diagramc2sum*(16./3.))*pi/sigma0prime;
-        //diagramc=(diagramc2sum)*pi/sigma0prime;
-        //cout<<"single integral"<<'\t'<<diagramc1sum*(4./9.)*pi/sigma0prime<<endl;
-        //cout<<"double integral"<<'\t'<<diagramc2sum*(16./3.)*pi/sigma0prime<<endl;
         cout<<"diagramc"<<'\t'<<diagramc<<endl;
+        checkdiagram=diagrama+diagramb+diagramc;
+        cout<<"checkdiagram"<<'\t'<<checkdiagram<<endl;
+        cout<<-6.*(diagrama+4.*diagramb+diagramc)*m*E*.5<<endl;
     }
 }
 
