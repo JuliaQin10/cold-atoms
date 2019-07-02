@@ -197,7 +197,7 @@ int main()
     Doub q,p,l,k;
     Doub E=-8.;
     Doub ro=.01;
-    Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum,diagramc1sum,diagramc2sum,diagramc,checkdiagram;
+    Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum,diagramc1sum,diagramc2sum,diagramc,checkdiagram, sigma0;
     int N=100;
     mat A(N,N);
     mat B;
@@ -212,6 +212,7 @@ int main()
     ofstream plotsigma;
     for (int i=1;i<31;i++)
     {
+        sigma0=0;
         sigma0prime=0;
         check1sum=0;
         check2sum=0;
@@ -261,6 +262,12 @@ int main()
             }
         }
         vec gamma0prime=LO1*productprime;
+        for (int i=1;i<x.size();i++)
+        {
+            q=x[i];
+            sigma0=sigma0+x[i]*dimer2(g, q, E, m)*gamma0(i);
+        }
+        
         for(int i=1;i<x.size();i++)
         {
             q=x[i];
