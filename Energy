@@ -1,0 +1,185 @@
+#include "nr3.h"
+#include "gamma.h"
+#include <fstream>
+#include <list>
+#include <armadillo>
+using namespace arma;
+
+double pi = 4. * atan(1);
+
+void gauleg(const Doub x1, const Doub x2, VecDoub_O& x, VecDoub_O& w) //x and w are customized variables defined in previous files
+//Doub not a fundamental type, it's a function defined in nr3.h and gamma.h
+//Vec not a standard library container, it's a function defined in nr3.h and gamma.h
+{
+    const Doub EPS = 1.0e-14; //EPS is the relative precision.
+    Doub z1, z, xm, xl, pp, p3, p2, p1;
+    Int n = x.size(); //sets n to the number of elemetns in x
+    Int m = (n + 1) / 2; //The roots are symmetric in the interval, so
+    xm = 0.5 * (x2 + x1); //we only have to find half of them.
+    xl = 0.5 * (x2 - x1);
+    for (Int i = 0; i < m; i++) { //Loop over the desired roots.
+        z = cos(3.141592654 * (i + 0.75) / (n + 0.5)); //Starting with this approximation to the ith root, we enter the main loop of refinement by Newtonís method.
+        do {
+            p1 = 1.0;
+            p2 = 0.0;
+            for (Int j = 0; j < n; j++) { //Loop up the recurrence relation to get the
+                p3 = p2; //Legendre polynomial evaluated at z.
+                p2 = p1;
+                p1 = ((2.0 * j + 1.0) * z * p2 - j * p3) / (j + 1);
+            }
+            //p1 is now the desired Legendre polynomial. We next compute pp, its derivative, by a standard relation involving also p2, the polynomial of one lower order.
+            pp = n * (z * p1 - p2) / (z * z - 1.0);
+            z1 = z;
+            z = z1 - p1 / pp; //Newtonís method.
+        } while (abs(z - z1) > EPS);
+        x[i] = xm - xl * z; //Scale the root to the desired interval,
+        x[n - 1 - i] = xm + xl * z; //and put in its symmetric counterpart.
+        w[i] = 2.0 * xl / ((1.0 - z * z) * pp * pp); //Compute the weight
+        w[n - 1 - i] = w[i]; //and its symmetric counterpart.
+    }
+}
+
+Doub dimer(Doub g, Doub p, Doub E, Doub m)
+{
+    return (2./pi)*pow(p,2)/(sqrt(.75*pow(p,2)-m*E)-g);
+}
+
+
+Doub exchange(Doub q, Doub p, Doub E, Doub m)
+{
+    return (1./(q*p))*log((pow(q,2)+pow(p,2)+q*p-m*E)/(pow(q,2)+pow(p,2)-q*p-m*E));
+}
+
+Doub inhomogenous(Doub ro, Doub g, Doub p, Doub m, Doub E)
+{
+    return (ro/2)*(g+sqrt(.75*pow(p,2)-m*E));
+}
+
+Doub dimer2(Doub g, Doub q, Doub E, Doub m)
+{
+    return (.5/pi)*pow(q,2)/(sqrt(.75*pow(q,2)-m*E)-g);
+}
+
+Doub exchangeprime(Doub q, Doub p, Doub E, Doub m)
+{
+    return (2*m)/(pow(pow(q,2)+pow(p,2)-m*E,2)-pow(q,2)*pow(p,2));
+}
+
+Doub dimer2prime(Doub g, Doub q, Doub E, Doub m)
+{
+    return (m/pi)*pow(q,2)/(sqrt(.75*pow(q,2)-m*E)*pow(sqrt(.75*pow(q,2)-m*E)-g,2));
+}
+
+Doub timesgamma0(Doub g, Doub q, Doub E, Doub m)
+{
+    return (m/(4.*pi))*pow(q,2)/(pow((sqrt(.75*pow(q,2)-m*E)-g),2)*sqrt(.75*pow(q,2)-m*E));
+}
+
+Doub timesgamma0prime(Doub g, Doub q, Doub E, Doub m)
+{
+    return (1./(2.*pi))*pow(q,2)/(sqrt(.75*pow(q,2)-m*E)-g);
+}
+
+int main()
+{
+    Doub g = 0.2;
+    Doub m = 938.;
+    Doub q, p, l, k;
+    Doub Estar = -8.;
+    //Doub ro = .01;
+    Doub product, sigma0prime, sigma0, store, En, sigma0star;
+    En =   Estar/489.846;
+    int N = 1000;
+    mat A(N, N);
+    mat B;
+    vec gamma1(N);
+    vec productprime(N);
+    vec gamma0prime(N);
+    VecDoub_O x(N);
+    VecDoub_O w(N);
+    sigma0star=0;
+    gauleg(0.,1000.,x,w);
+    for (int i = 1; i < x.size(); i++)
+    {
+        q = x[i];
+        for (int j = 1; j < N; j++)
+        {
+            p = x[j];
+            product = w[j] * dimer(g, p, Estar, m) * exchange(q, p, Estar, m);
+            A(i, j) = product;
+        }
+    }
+    mat identity(N, N, fill::eye);
+    mat LO = identity - A;
+    mat LO1 = inv(LO);
+    B.ones(1, N);
+    vec gamma0 = LO1 * trans(B);
+    
+    for (int i = 1; i < x.size(); i++)
+    {
+        q = x[i];
+        sigma0star = sigma0star + w[i] * dimer2(g, q, Estar, m) * gamma0(i);
+    }
+    do
+    {
+        sigma0 = 0;
+        sigma0prime = 0;
+        for (int i = 1; i < x.size(); i++)
+        {
+            q = x[i];
+            for (int j = 1; j < N; j++)
+            {
+                p = x[j];
+                product = w[j] * dimer(g, p, En, m) * exchange(q, p, En, m);
+                A(i, j) = product;
+            }
+        }
+        LO = identity - A;
+        LO1 = inv(LO);
+        B.ones(1, N);
+        gamma0 = LO1 * trans(B);
+        
+        for (int i = 1; i < x.size(); i++)
+        {
+            p = x[i];
+            productprime(i) = 0.0;
+            for (int j = 1; j < N; j++)
+            {
+                q = x[j];
+                productprime(i) = productprime(i) + w[j] * dimer2(g, q, En, m) * gamma0(j) * exchangeprime(q, p, En, m) + w[j] * exchange(q, p, En, m) * gamma0(j) * dimer2prime(g, q, En, m);
+            }
+        }
+        gamma0prime = LO1 * productprime;
+        for (int i = 1; i < x.size(); i++)
+        {
+            q = x[i];
+            sigma0 = sigma0 + w[i] * dimer2(g, q, En, m) * gamma0(i);
+        }
+        for (int i = 1; i < x.size(); i++)
+        {
+            q = x[i];
+            sigma0prime = sigma0prime + w[i] * timesgamma0(g, q, En, m) * gamma0(i) + w[i] * timesgamma0prime(g, q, En, m) * gamma0prime(i);
+        }
+        store = En;
+        En = En - (sigma0 - sigma0star)/sigma0prime;
+        cout << En <<'\t'<<Estar/En<<endl;
+    }
+    while (abs(store - En) > pow(10, -12));
+}
+
+/*
+int main()
+{
+    Doub y = 2.;
+    Doub x = 5.;
+    Doub store;
+    int m = 5;
+    do
+    {
+        store=y;
+        y = y - (pow(y, m) - x) / (m * pow(y, m - 1));
+        cout << y << endl;
+    }
+    while (abs(store-y) > pow(10, -12));
+}
+*/
