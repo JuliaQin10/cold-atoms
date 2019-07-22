@@ -1,0 +1,3 @@
+(q*(-(En*m) + Power(p,2) - p*q + Power(q,2))*(-(m/(-(En*m) + Power(p,2) - p*q + Power(q,2))) + (m*(-(En*m) + Power(p,2) + p*q + Power(q,2)))/Power(-(En*m) + Power(p,2) - p*q + Power(q,2),2)))/
+    (p*(-(En*m) + Power(p,2) + p*q + Power(q,2))*(-g + Sqrt(-(En*m) + (3*Power(q,2))/4.))) + 
+   (m*q*Log((-(En*m) + Power(p,2) + p*q + Power(q,2))/(-(En*m) + Power(p,2) - p*q + Power(q,2))))/(2.*p*Sqrt(-(En*m) + (3*Power(q,2))/4.)*Power(-g + Sqrt(-(En*m) + (3*Power(q,2))/4.),2))
