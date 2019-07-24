@@ -1,0 +1,39 @@
+Doub inhomogenous2(Doub p, Doub k, Doub m, Doub E)
+{
+	return 2 * pi * 0.5 / (p * k) * log(p * p + k * k - m * E + p * k / (p * p + k * k - m * E - p * k));
+}
+
+vec inhomogenousB(N);
+Doub zeromomentum, x, gamma0momentum, ZLO, HLO;
+Doub length = 100;
+Doub E = -g * g / m;
+  
+  zeromomentum = 0;
+  gamma0momentum=0;
+  HLO=0;
+
+for (int i = 1; i < N; i++)
+		{
+			p = x[i];
+			k = 0;
+			inhomogenousB(i) = inhomogenous2(p, k, m, E);
+		}
+vec amplitude = LO1 * inhomogenousB;
+
+for (int i = 1; i < N; i++)
+		{
+			q = x[i];
+			p = 0;
+			zeromomentum = zeromomentum + w[i] * dimer(g, p, E, m) * exchange(q, p, E, m) * amplitude(i);
+		}
+    
+ZLO = sqrt(2 * gamma0 / m);
+for (int i = 1; i < N; i++)
+		{
+			E = -g * g / m;
+			p = 0;
+			q = x[i];
+			gamma0momentum = gamma0momentum + w[i] * dimer(g, p, E, m) * exchange(q, p, E, m) *gamma0(i);
+		}
+x = -(3 * pi * length / m + ZLO * zeromomentum) / (pi * ZLO * gamma0momentum * gamma0momentum);
+HLO = x / (1 + x * sigma0);
