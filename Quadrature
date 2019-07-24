@@ -45,7 +45,6 @@ Doub dimer(Doub g, Doub p, Doub E, Doub m)
     return (2./pi)*pow(p,2)/(sqrt(.75*pow(p,2)-m*E)-g);
 }
 
-
 Doub exchange(Doub q, Doub p, Doub E, Doub m)
 {
     return (1./(q*p))*log((pow(q,2)+pow(p,2)+q*p-m*E)/(pow(q,2)+pow(p,2)-q*p-m*E));
@@ -54,6 +53,11 @@ Doub exchange(Doub q, Doub p, Doub E, Doub m)
 Doub inhomogenous(Doub ro, Doub g, Doub p, Doub m, Doub E)
 {
     return (ro/2.)*(g+sqrt(.75*pow(p,2)-m*E));
+}
+
+Doub inhomogenous2(Doub p, Doub k, Doub m, Doub E)
+{
+    return 2 * pi * 0.5 / (p * k) * log(p * p + k * k - m * E + p * k / (p * p + k * k - m * E - p * k));
 }
 
 Doub dimer2(Doub g, Doub q, Doub E, Doub m)
@@ -298,8 +302,10 @@ int main()
     Doub g=45.;
     Doub m=938.;
     Doub q,p,l,k;
-    Doub E=-8.;
-    Doub ro=.01;
+    Doub zeromomentum, variablex, gamma0momentum, ZLO, HLO;
+    Doub length = 100;
+    Doub E = -g * g / m;
+    Doub ro=0.1;
     Doub r=0.1;
     Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum,diagramc1sum,diagramc2sum,diagramc,checkdiagram, sigma0;
     Doub NLOdiagramb, NLOdiagrambsum, NLOdiagramd1sum, NLOdiagramd2sum, NLOdiagramd;
@@ -315,6 +321,8 @@ int main()
     vec timesgamma1prime(N);
     vec gamma1prime(N);
     vec realgamma1(N);
+    vec inhomogenousB(N);
+    vec realgamma0(N);
     int cutoff=100;
     VecDoub_O x(N);
     VecDoub_O w(N);
@@ -350,6 +358,9 @@ int main()
         checksigma1=0;
         checksigma2=0;
         sigma1prime=0;
+        zeromomentum = 0;
+        gamma0momentum=0;
+        HLO=0;
         cutoff=cutoff+100;
         plot0.open ("gamma0_"+to_string(cutoff)+".dat");
         plot1.open ("gamma1_"+to_string(cutoff)+".dat");
@@ -371,9 +382,32 @@ int main()
         mat LO1=inv(LO);
         B.ones(1, N);
         vec gamma0=LO1*trans(B);
-        for (int j=1;j<N;j++)
+        for (int j=1;j<N;j++){
             gamma1(j)=gamma0(j)*inhomogenous(ro,g,x[j],m,E);
+        }
         gamma1=LO1*gamma1;
+        for (int i = 1; i < N; i++)
+        {
+            p = x[i];
+            k = 0;
+            inhomogenousB(i) = inhomogenous2(p, k, m, E);
+        }
+        vec amplitude = LO1 * inhomogenousB;
+        for (int i = 1; i < N; i++)
+        {
+            q = x[i];
+            p = 0;
+            zeromomentum = zeromomentum + w[i] * dimer(g, p, E, m) * exchange(q, p, E, m) * amplitude(i);
+        }
+        ZLO = sqrt(2 * g / m);
+        for (int i = 1; i < N; i++)
+        {
+            E = -g * g / m;
+            p = 0;
+            q = x[i];
+            gamma0momentum = gamma0momentum + w[i] * dimer(g, p, E, m) * exchange(q, p, E, m) *gamma0(i);
+        }
+        variablex = -(3 * pi * length / m + ZLO * zeromomentum) / (pi * ZLO * gamma0momentum * gamma0momentum);
         for (int i=1;i<N;i++)
         {
             plot0<<x[i]<<"\t"<<gamma0(i)<<"\n";
@@ -393,16 +427,20 @@ int main()
         for (int i=1;i<x.size();i++)
         {
             q=x[i];
-            sigma0=sigma0+x[i]*dimer2(g, q, E, m)*gamma0(i);
+            sigma0=sigma0+w[i]*dimer2(g, q, E, m)*gamma0(i);
         }
-        
+        HLO = variablex / (1 + variablex * sigma0);
         for(int i=1;i<x.size();i++)
         {
             q=x[i];
             sigma0prime=sigma0prime+w[i]*timesgamma0(g, q, E, m)*gamma0(i)+w[i]*timesgamma0prime(g, q, E, m)*gamma0prime(i);
         }
         cout<<"sigma0prime"<<"\t"<<sigma0prime<<endl;
-        vec realgamma0=(sqrt(pi/sigma0prime))*gamma0;
+        for (i=1;i<N;i++)
+        {
+            q=x[i];
+            realgamma0(i)=(sqrt(pi/sigma0prime))*gamma0(i)/(g-sqrt(0.75*q*q-m*E));
+        }
         for (int i=1;i<N;i++)
         {
             plot0prime<<x[i]<<"\t"<<gamma0prime(i)<<"\n";
@@ -550,9 +588,11 @@ int main()
             q=x[i];
             sigma1prime=sigma1prime+w[i]*timesgamma0(g, q, E, m)*gamma1(i)+w[i]*timesgamma0prime(g, q, E, m)*gamma1prime(i);
         }
+        cout<<"sigma1prime"<<"\t"<<sigma1prime<<endl;
         for (int i=1; i<N; i++)
         {
-            realgamma1(i)=sqrt(pi/sigma0prime)*(gamma1(i)-0.5*(sigma1prime/sigma0prime)*gamma0(i));
+            q=x[i];
+            realgamma1(i)=(sqrt(pi/sigma0prime)*(gamma1(i)-0.5*(sigma1prime/sigma0prime)*gamma0(i)))/(g-sqrt(0.75*q*q-m*E));
         }
         for (int i=1; i<N; i++)
         {
@@ -587,7 +627,7 @@ int main()
         }
         
         checksigma=checksigma1+checksigma2;
-        cout<<checksigma<<'\t'<<sigma0prime<<'\t'<<sigma1prime<<'\t'<<sigma1prime/sigma0prime<<endl;
+        cout<<"NormalizationNLO:"<<checksigma<<endl;
     }
 }
 
