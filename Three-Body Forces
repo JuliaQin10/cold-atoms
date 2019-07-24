@@ -55,10 +55,6 @@ Doub inhomogenous(Doub ro, Doub g, Doub p, Doub m, Doub E)
     return (ro/2.)*(g+sqrt(.75*pow(p,2)-m*E));
 }
 
-Doub inhomogenous2(Doub p, Doub k, Doub m, Doub E)
-{
-    return 2 * pi * 0.5 / (p * k) * log(p * p + k * k - m * E + p * k / (p * p + k * k - m * E - p * k));
-}
 
 Doub dimer2(Doub g, Doub q, Doub E, Doub m)
 {
@@ -302,9 +298,7 @@ int main()
     Doub g=0.;
     Doub m=938.;
     Doub q,p,l,k;
-    Doub zeromomentum, variablex, gamma0momentum, ZLO, HLO;
-    Doub length = 100;
-    Doub E = -g * g / m;
+    Doub E = -8.;
     Doub ro=0.1;
     Doub r=0.1;
     Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum,diagramc1sum,diagramc2sum,diagramc,checkdiagram, sigma0;
@@ -320,9 +314,8 @@ int main()
     vec productprime(N);
     vec timesgamma1prime(N);
     vec gamma1prime(N);
-    vec realgamma1(N);
-    vec inhomogenousB(N);
     vec realgamma0(N);
+    vec realgamma1(N);
     int cutoff=100;
     VecDoub_O x(N);
     VecDoub_O w(N);
@@ -358,9 +351,6 @@ int main()
         checksigma1=0;
         checksigma2=0;
         sigma1prime=0;
-        zeromomentum = 0;
-        gamma0momentum=0;
-        HLO=0;
         cutoff=cutoff+100;
         plot0.open ("gamma0_"+to_string(cutoff)+".dat");
         plot1.open ("gamma1_"+to_string(cutoff)+".dat");
@@ -386,28 +376,6 @@ int main()
             gamma1(j)=gamma0(j)*inhomogenous(ro,g,x[j],m,E);
         }
         gamma1=LO1*gamma1;
-        for (int i = 1; i < N; i++)
-        {
-            p = x[i];
-            k = 0;
-            inhomogenousB(i) = inhomogenous2(p, k, m, E);
-        }
-        vec amplitude = LO1 * inhomogenousB;
-        for (int i = 1; i < N; i++)
-        {
-            q = x[i];
-            p = 0;
-            zeromomentum = zeromomentum + w[i] * dimer(g, p, E, m) * exchange(q, p, E, m) * amplitude(i);
-        }
-        ZLO = sqrt(2 * g / m);
-        for (int i = 1; i < N; i++)
-        {
-            E = -g * g / m;
-            p = 0;
-            q = x[i];
-            gamma0momentum = gamma0momentum + w[i] * dimer(g, p, E, m) * exchange(q, p, E, m) *gamma0(i);
-        }
-        variablex = -(3 * pi * length / m + ZLO * zeromomentum) / (pi * ZLO * gamma0momentum * gamma0momentum);
         for (int i=1;i<N;i++)
         {
             plot0<<x[i]<<"\t"<<gamma0(i)<<"\n";
@@ -429,7 +397,6 @@ int main()
             q=x[i];
             sigma0=sigma0+w[i]*dimer2(g, q, E, m)*gamma0(i);
         }
-        HLO = variablex / (1 + variablex * sigma0);
         for(int i=1;i<x.size();i++)
         {
             q=x[i];
@@ -506,8 +473,7 @@ int main()
         diagramc=(diagramc1sum*(4./9.)+diagramc2sum*(16./3.))*pi/sigma0prime;
         checkdiagram=diagrama+diagramb+diagramc;
         //cout<<"checkdiagram"<<'\t'<<checkdiagram<<endl;
-        cout<<"hello world"<<E<<m<<endl;
-        //cout<<"hello world"<<-6.*(diagrama+4.*diagramb+diagramc)*m*E*.5<<endl;
+        cout<<"hello world"<<-6.*(diagrama+diagramb+diagramc)*m*E*.5<<endl;
         //LOradius=sqrt(checkdiagram*-6);
         for (int i=1;i<N;i++)
         {
@@ -600,8 +566,6 @@ int main()
                 m/(2*pi*pi*pi)*w[i]*realgamma0(i)*q*q*w[j]*l*l*4*realgamma1(j)/(q*q*l*l-pow(q*q+l*l-m*E,2));
             }
         }
-        
-        
         for (int i=1;i<N;i++)
         {
             l=x[i];
