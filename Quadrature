@@ -296,11 +296,11 @@ Doub wolfram(Doub g, Doub q, Doub E, Doub m, Doub p)
 int main()
 {
     Doub g=0.;
-    Doub m=938.;
+    Doub m=938.918;
     Doub q,p,l,k;
-    Doub E = -8.;
-    Doub ro=0.1;
-    Doub r=0.1;
+    Doub E=-7.62;
+    Doub ro=0.0113897;
+    Doub r=0.0113897;
     Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum,diagramc1sum,diagramc2sum,diagramc,checkdiagram, sigma0;
     Doub NLOdiagramb, NLOdiagrambsum, NLOdiagramd1sum, NLOdiagramd2sum, NLOdiagramd;
     Doub NLOdiagrama1sum, NLOdiagrama2sum, NLOdiagrama3sum, NLOdiagrama4sum, NLOdiagrama5sum, NLOdiagrama;
@@ -323,7 +323,7 @@ int main()
     ofstream plot1;
     ofstream plot0prime;
     ofstream plotsigma;
-    for (int i=1; i<11; i++)
+    for (int i=1;i<31;i++)
     {
         sigma0=0;
         sigma0prime=0;
@@ -357,7 +357,7 @@ int main()
         plot0prime.open ("gamma0prime_"+to_string(cutoff)+".dat");
         plotsigma.open ("sigma0prime_"+to_string(cutoff)+".dat");
         gauleg(0.,cutoff,x,w);
-        for(int iter=1;iter<x.size();iter++)
+        for(int i=1;i<x.size();i++)
         {
             q=x[i];
             for (int j=1;j<N;j++)
@@ -403,6 +403,7 @@ int main()
             q=x[i];
             sigma0prime=sigma0prime+w[i]*timesgamma0(g, q, E, m)*gamma0(i)+w[i]*timesgamma0prime(g, q, E, m)*gamma0prime(i);
         }
+        vec normalized=(sqrt(pi/sigma0prime))*gamma0;
         for (int i=1;i<N;i++)
         {
             q=x[i];
@@ -411,7 +412,7 @@ int main()
         for (int i=1;i<N;i++)
         {
             plot0prime<<x[i]<<"\t"<<gamma0prime(i)<<"\n";
-            plotsigma<<x[i]<<"\t"<<realgamma0(i)<<"\n";
+            plotsigma<<x[i]<<"\t"<<normalized(i)<<"\n";
         }
         for (int i=1;i<N;i++)
         {
@@ -428,11 +429,11 @@ int main()
             }
         }
         cout<<"cutoff"<<'\t'<<cutoff<<endl;
+        cout<<"normalizationLO"<<'\t'<<(check1sum)<<'\t'<<check2sum<<'\t'<<check1sum-check2sum<<endl;
         plot0.close();
         plot1.close();
         plot0prime.close();
         plotsigma.close();
-        cout<<"normalizationLO"<<'\t'<<(check1sum)<<'\t'<<check2sum<<'\t'<<check1sum-check2sum<<endl;
         for (int i=1;i<N;i++)
         {
             p=x[i];
@@ -443,6 +444,7 @@ int main()
             }
         }
         diagramb=diagrambsum*pi/sigma0prime;
+        //cout<<"diagramb"<<'\t'<<diagramb<<endl//;
         for (int z=1;z<N;z++)
         {
             q=x[z];
@@ -458,6 +460,7 @@ int main()
                 }
             }
         }
+        
         for (int i=1;i<N;i++)
         {
             k=x[i];
@@ -469,14 +472,13 @@ int main()
             }
         }
         diagrama=(diagrama1sum+diagrama2sum+diagrama3sum)*pi/sigma0prime;
+        //cout<<"diagrama"<<'\t'<<diagrama<<endl;
         diagramc=(diagramc1sum*(4./9.)+diagramc2sum*(16./3.))*pi/sigma0prime;
+        //cout<<"diagramc"<<'\t'<<diagramc<<endl;
         checkdiagram=diagrama+diagramb+diagramc;
         //cout<<"checkdiagram"<<'\t'<<checkdiagram<<endl;
-        cout<<"diagram-a:"<<diagrama<<endl;
-        cout<<"diagram-b:"<<diagramb<<endl;
-        cout<<"diagram-c:"<<diagramc<<endl;
-        cout<<"LO charge radius check:"<<-6.*(diagrama+0.*diagramb+0*diagramc)*m*E*.5<<endl;
-        //LOradius=sqrt(checkdiagram*-6);
+        cout<<"LO-unitariy-charge-radius-check:"<<-6.*(diagrama+4.*diagramb+diagramc)*m*E*.5<<endl;
+        cout<<"LO-charge-radius:"<<sqrt(-6.*(diagrama+4.*diagramb+diagramc)*.5)*197.327<<endl;
         for (int i=1;i<N;i++)
         {
             p=x[i];
@@ -500,7 +502,7 @@ int main()
                 NLOdiagramc5sum = NLOdiagramc5sum + w[j]*dimerp(g, p, m, E)*gamma0(j)*(4/3)*B25(g, E, m, p, k, r)*w[i]*dimerk(g, k, m, E)*gamma0(i);
             }
         }
-        NLOdiagramc=(NLOdiagramc1sum*(40/3)+NLOdiagramc2sum*(4/3)+NLOdiagramc3sum*(160/3)+NLOdiagramc4sum*(160/3)+NLOdiagramc5sum*(16/3))*pi/sigma0prime;
+        NLOdiagramc=(NLOdiagramc1sum*(40./3.)+NLOdiagramc2sum*(4./3.)+NLOdiagramc3sum*(160./3.)+NLOdiagramc4sum*(160./3.)+NLOdiagramc5sum*(16./3.))*pi/sigma0prime;
         for (int i=1;i<N;i++)
         {
             q=x[i];
@@ -518,7 +520,7 @@ int main()
                 }
             }
         }
-        NLOdiagrama=(0.5*NLOdiagrama1sum+10*NLOdiagrama2sum+NLOdiagrama3sum+4*NLOdiagrama4sum+4*NLOdiagrama5sum)*pi/sigma0prime;
+        NLOdiagrama=(0.5*NLOdiagrama1sum+10.*NLOdiagrama2sum+NLOdiagrama3sum+4.*NLOdiagrama4sum+4.*NLOdiagrama5sum)*pi/sigma0prime;
         for (int i=1;i<N;i++)
         {
             k=x[i];
@@ -529,7 +531,11 @@ int main()
                 NLOdiagramd2sum = NLOdiagramd2sum + w[j]*dimerp(g, p, m, E)*gamma0(j)*dimerk(g, k, m, E)*w[i]*gamma0(i)*D1pkq(g,k,E,m,r,p);
             }
         }
-        NLOdiagramd=(NLOdiagramd1sum*(2/3)+NLOdiagramd2sum*(8/3))*pi/sigma0prime;
+        NLOdiagramd=(NLOdiagramd1sum*(2./3.)+NLOdiagramd2sum*(8./3.))*pi/sigma0prime;
+        cout<<"NLOdiagram-a:"<<NLOdiagrama<<endl;
+        cout<<"NLOdiagram-b:"<<NLOdiagramb<<endl;
+        cout<<"NLOdiagram-c:"<<NLOdiagramc<<endl;
+        cout<<"NLOdiagram-d:"<<NLOdiagramd<<endl;
         for (int i=1;i<N;i++)
         {
             p=x[i];
@@ -583,8 +589,10 @@ int main()
             }
         }
         checksigma=checksigma1+checksigma2;
-        //cout<<"NormalizationNLO:"<<checksigma<<endl;
+        cout<<"NormalizationNLO:"<<checksigma<<endl;
         NLOradius=(NLOdiagrama+NLOdiagramb+NLOdiagramc+NLOdiagramd)*pi/sigma0prime-sigma1prime/sigma0prime*checkdiagram;
         cout<<"NLO charge radius"<<"\t"<<NLOradius<<endl;
     }
 }
+
+
