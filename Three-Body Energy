@@ -1,0 +1,356 @@
+#include "nr3.h"
+#include "gamma.h"
+#include <armadillo>
+#include <fstream>
+#include <list>
+using namespace arma;
+//In preface, Numerical explains that they deliberately exclude #include statements
+//Found include statements at nr.com/dependencies
+//Retrieved files from website
+double pi = 4. * atan(1);
+
+void gauleg(const Doub x1, const Doub x2, VecDoub_O& x, VecDoub_O& w) //x and w are customized variables defined in previous files
+//Doub not a fundamental type, it's a function defined in nr3.h and gamma.h
+//Vec not a standard library container, it's a function defined in nr3.h and gamma.h
+{
+	const Doub EPS = 1.0e-14; //EPS is the relative precision.
+	Doub z1, z, xm, xl, pp, p3, p2, p1;
+	Int n = x.size(); //sets n to the number of elemetns in x
+	Int m = (n + 1) / 2; //The roots are symmetric in the interval, so
+	xm = 0.5 * (x2 + x1); //we only have to find half of them.
+	xl = 0.5 * (x2 - x1);
+	for (Int i = 0; i < m; i++) { //Loop over the desired roots.
+		z = cos(3.141592654 * (i + 0.75) / (n + 0.5)); //Starting with this approximation to the ith root, we enter the main loop of refinement by Newton’s method.
+		do {
+			p1 = 1.0;
+			p2 = 0.0;
+			for (Int j = 0; j < n; j++) { //Loop up the recurrence relation to get the
+				p3 = p2; //Legendre polynomial evaluated at z.
+				p2 = p1;
+				p1 = ((2.0 * j + 1.0) * z * p2 - j * p3) / (j + 1);
+			}
+			//p1 is now the desired Legendre polynomial. We next compute pp, its derivative, by a standard relation involving also p2, the polynomial of one lower order.
+			pp = n * (z * p1 - p2) / (z * z - 1.0);
+			z1 = z;
+			z = z1 - p1 / pp; //Newton’s method.
+		} while (abs(z - z1) > EPS);
+		x[i] = xm - xl * z; //Scale the root to the desired interval,
+		x[n - 1 - i] = xm + xl * z; //and put in its symmetric counterpart.
+		w[i] = 2.0 * xl / ((1.0 - z * z) * pp * pp); //Compute the weight
+		w[n - 1 - i] = w[i]; //and its symmetric counterpart.
+	}
+}
+Doub dimer(Doub g, Doub p, Doub E, Doub m)
+{
+	return (2. / pi) * pow(p, 2) / (sqrt(.75 * pow(p, 2) - m * E) - g);
+}
+
+Doub exchange(Doub q, Doub p, Doub E, Doub m)
+{
+	return (1. / (q * p)) * log((pow(q, 2) + pow(p, 2) + q * p - m * E) / (pow(q, 2) + pow(p, 2) - q * p - m * E));
+}
+
+Doub inhomogenous(Doub ro, Doub g, Doub p, Doub m, Doub E)
+{
+	return (ro / 2.) * (g + sqrt(.75 * pow(p, 2) - m * E));
+}
+
+Doub inhomogenous2(Doub p, Doub k, Doub m, Doub E)
+{
+	return 2 * pi * 0.5 / (p * k) * log(p * p + k * k - m * E + p * k / (p * p + k * k - m * E - p * k));
+}
+
+Doub dimer2(Doub g, Doub q, Doub E, Doub m)
+{
+	return (2. / pi) * pow(q, 2) / (sqrt(.75 * pow(q, 2) - m * E) - g);
+}
+
+Doub exchangeprime(Doub q, Doub p, Doub E, Doub m)
+{
+	return (2 * m) / (pow(pow(q, 2) + pow(p, 2) - m * E, 2) - pow(q, 2) * pow(p, 2));
+}
+
+Doub dimer2prime(Doub g, Doub q, Doub E, Doub m)
+{
+	return (m / pi) * pow(q, 2) / (sqrt(.75 * pow(q, 2) - m * E) * pow(sqrt(.75 * pow(q, 2) - m * E) - g, 2));
+}
+
+Doub timesgee0(Doub g, Doub q, Doub E, Doub m)
+{
+	return (m / (4. * pi)) * pow(q, 2) / (pow((sqrt(.75 * pow(q, 2) - m * E) - g), 2) * sqrt(.75 * pow(q, 2) - m * E));
+}
+
+Doub timesgee0prime(Doub g, Doub q, Doub E, Doub m)
+{
+	return (1. / (2. * pi)) * pow(q, 2) / (sqrt(.75 * pow(q, 2) - m * E) - g);
+}
+
+Doub check1(Doub g, Doub l, Doub E, Doub m)
+{
+	return pow(l, 2) * m / (4. * pi * pow(g - sqrt(.75 * pow(l, 2) - m * E), 2) * sqrt(.75 * pow(l, 2) - m * E));
+	//return pow(l,2)*m/(4.*pi*sqrt(.75*pow(l,2)-m*E));
+}
+Doub check2(Doub g, Doub l, Doub q, Doub E, Doub m)
+{
+	return 2. * pow(l, 2) * pow(q, 2) * m / (pi * pi * (g - sqrt(.75 * pow(q, 2) - m * E)) * (g - sqrt(.75 * pow(l, 2) - m * E)) * (pow(q, 2) * pow(l, 2) - pow((pow(q, 2) + pow(l, 2) - m * E), 2)));
+	//return 2.*pow(l,2)*pow(q,2)*m/(pi*pi*(pow(q,2)*pow(l,2)-pow((pow(q,2)+pow(l,2)-m*E),2)));
+}
+
+Doub wolfram(Doub g, Doub q, Doub E, Doub m, Doub p)
+{
+	return (q * (-(E * m) + pow(p, 2) - p * q + pow(q, 2)) * (-(m / (-(E * m) + pow(p, 2) - p * q + pow(q, 2))) + (m * (-(E * m) + pow(p, 2) + p * q + pow(q, 2))) / pow(-(E * m) + pow(p, 2) - p * q + pow(q, 2), 2))) /
+		(p * (-(E * m) + pow(p, 2) + p * q + pow(q, 2)) * (-g + sqrt(-(E * m) + (3 * pow(q, 2)) / 4.))) +
+		(m * q * log((-(E * m) + pow(p, 2) + p * q + pow(q, 2)) / (-(E * m) + pow(p, 2) - p * q + pow(q, 2)))) / (2. * p * sqrt(-(E * m) + (3 * pow(q, 2)) / 4.) * pow(-g + sqrt(-(E * m) + (3 * pow(q, 2)) / 4.), 2));
+}
+
+Doub inhomogenous3(Doub r, Doub g, Doub p, Doub m, Doub E)
+{
+	return 0.5 * r * (g + sqrt(0.75 * p * p - m * E));
+}
+
+int main()
+{
+	Doub g = 0.;
+	Doub m = 938.;
+	Doub q, p, l, k;
+	Doub t0dmomentum, variablex, gee0momentum, ZLO, HLO, gee1momentum, t1dmomentum, HNLO;
+	Doub length = 100;
+	Doub E = -g * g / m;
+	Doub ro = 0.1;
+	Doub r = 0.1;
+	Doub product, sigma0prime, check1sum, check2sum, sigma0, sigma1;
+	Doub gee1primeintegral;
+	Doub checksigma1, checksigma2, checksigma, sigma1prime, LOradius, NLOradius;
+	int N = 100;
+	mat A(N, N);
+	mat B;
+	vec gee1(N);
+	vec productprime(N);
+	vec timesgee1prime(N);
+	vec gee1prime(N);
+	vec realgamma1(N);
+	vec inhomogenousB(N);
+	vec inhomogenousC(N);
+	vec realgamma0(N);
+	vec t0d(N);
+	vec t1d(N);
+	int cutoff = 100;
+	VecDoub_O x(N);
+	VecDoub_O w(N);
+	ofstream plot0;
+	ofstream plot1;
+	ofstream plot0prime;
+	ofstream plotsigma;
+	for (int i = 1; i < 11; i++)
+	{
+		sigma0 = 0;
+		sigma1 = 0;
+		sigma0prime = 0;
+		check1sum = 0;
+		check2sum = 0;
+		checksigma1 = 0;
+		checksigma2 = 0;
+		sigma1prime = 0;
+		t0dmomentum = 0;
+		gee0momentum = 0;
+		gee1momentum = 0;
+		t1dmomentum = 0;
+		HLO = 0;
+		cutoff = cutoff + 100;
+		plot0.open("gee0_" + to_string(cutoff) + ".dat");
+		plot1.open("gee1_" + to_string(cutoff) + ".dat");
+		plot0prime.open("gee0prime_" + to_string(cutoff) + ".dat");
+		plotsigma.open("sigma0prime_" + to_string(cutoff) + ".dat");
+		gauleg(0., cutoff, x, w);
+		for (int i = 1; i < x.size(); i++)
+		{
+			q = x[i];
+			for (int j = 1; j < N; j++)
+			{
+				p = x[j];
+				product = w[j] * dimer(g, p, E, m) * exchange(q, p, E, m);
+				A(i, j) = product;
+			}
+		}
+		mat identity(N, N, fill::eye);
+		mat LO = identity - A;
+		mat LO1 = inv(LO);
+		B.ones(1, N);
+		vec gee0 = LO1 * trans(B);
+		for (int j = 1; j < N; j++) 
+		{
+			gee1(j) = gee0(j) * inhomogenous(ro, g, x[j], m, E);
+		}
+		gee1 = LO1 * gee1;
+		for (int i = 1; i < N; i++)
+		{
+			p = x[i];
+			k = 0;
+			inhomogenousB(i) = inhomogenous2(p, k, m, E);
+		}
+		t0d = LO1 * inhomogenousB;
+		for (int i = 1; i < N; i++)
+		{
+			k = 0;
+			p = x[i];
+			inhomogenousC(i) = t0d(i)*inhomogenous3(r, g, p, m, E);
+		}
+		t1d = LO1 * inhomogenousC;
+		for (int i = 1; i < N; i++)
+		{
+			q = x[i];
+			p = 0;
+			t0dmomentum = t0dmomentum + w[i] * dimer(g, p, E, m) * exchange(q, p, E, m) * t0d(i);
+		}
+		for (int i = 1; i < N; i++)
+		{
+			k = 0;
+			p = 0;
+			q = x[i];
+			t1dmomentum = t1dmomentum + w[i] * dimer(g, p, E, m) * exchange(q, p, E, m) * t1d(i);
+		}
+		t1dmomentum = t1dmomentum + r * g * t0dmomentum;
+		ZLO = sqrt(2 * g / m);
+		for (int i = 1; i < N; i++)
+		{
+			E = -g * g / m;
+			p = 0;
+			q = x[i];
+			gee0momentum = gee0momentum + w[i] * dimer(g, p, E, m) * exchange(q, p, E, m) * gee0(i);
+		}
+		variablex = -(3 * pi * length / m + ZLO * t0dmomentum) / (pi * ZLO * gee0momentum * gee0momentum);
+		for (int i = 1; i < N; i++)
+		{
+			k = 0;
+			p = 0;
+			q = x[i];
+			gee1momentum = gee1momentum + w[i] * dimer(g, p, E, m) * exchange(q, p, E, m) * gee1(i);
+		}
+		gee1momentum = gee1momentum + r * g * gee0momentum;
+		for (int i = 1; i < N; i++)
+		{
+			plot0 << x[i] << "\t" << gee0(i) << "\n";
+			plot1 << x[i] << "\t" << gee1(i) << "\n";
+		}
+		for (int i = 1; i < x.size(); i++)
+		{
+			p = x[i];
+			productprime(i) = 0.0;
+			for (int j = 1; j < N; j++)
+			{
+				q = x[j];
+				productprime(i) = productprime(i) + w[j] * dimer2(g, q, E, m) * gee0(j) * exchangeprime(q, p, E, m) + w[j] * exchange(q, p, E, m) * gee0(j) * dimer2prime(g, q, E, m);
+			}
+		}
+		vec gee0prime = LO1 * productprime;
+		for (int i = 1; i < x.size(); i++)
+		{
+			q = x[i];
+			sigma0 = sigma0 + w[i] * dimer2(g, q, E, m) * gee0(i);
+		}
+		for (int i = 1; i < x.size(); i++)
+		{
+			q = x[i];
+			sigma1 = sigma1 + w[i] * dimer2(g, q, E, m) * gee1(i);
+		}
+		HLO = variablex / (1 + variablex * sigma0);
+		HNLO = (t1dmomentum * ZLO +
+			2 * gee0momentum * gee1momentum * HLO * pi * ZLO / (1 - HLO * sigma0) +
+			r * g * (t0dmomentum * ZLO + gee0momentum * gee0momentum * HLO * pi * ZLO / (1 - HLO * sigma0)) +
+			gee0momentum * gee0momentum * HLO * HLO * pi * ZLO * sigma1 / pow(1 - HLO * sigma0, 2)) /
+			(-gee0momentum * gee0momentum * HLO * pi * ZLO * sigma0 / pow(1 - HLO * sigma0, 2) -
+				gee0momentum * gee0momentum * pi * ZLO / (1 - HLO * sigma0));
+		for (int i = 1; i < x.size(); i++)
+		{
+			q = x[i];
+			sigma0prime = sigma0prime + w[i] * timesgee0(g, q, E, m) * gee0(i) + w[i] * timesgee0prime(g, q, E, m) * gee0prime(i);
+		}
+		for (i = 1; i < N; i++)
+		{
+			q = x[i];
+			realgamma0(i) = (sqrt(pi / sigma0prime)) * gee0(i) / (g - sqrt(0.75 * q * q - m * E));
+		}
+		for (int i = 1; i < N; i++)
+		{
+			plot0prime << x[i] << "\t" << gee0prime(i) << "\n";
+			plotsigma << x[i] << "\t" << realgamma0(i) << "\n";
+		}
+
+		for (int i = 1; i < N; i++)
+		{
+			l = x[i];
+			check1sum = check1sum + (w[i] * check1(g, l, E, m) * gee0(i) * gee0(i) / sigma0prime);
+		}
+		for (int i = 1; i < N; i++)
+		{
+			l = x[i];
+			for (int j = 1; j < N; j++)
+			{
+				q = x[j];
+				check2sum = check2sum + w[j] * w[i] * check2(g, l, q, E, m) * gee0(j) * gee0(i) / sigma0prime;
+			}
+		}
+		cout << "cutoff" << '\t' << cutoff << endl;
+		plot0.close();
+		plot1.close();
+		plot0prime.close();
+		plotsigma.close();
+		//cout<<"normalizationLO"<<'\t'<<(check1sum)<<'\t'<<check2sum<<'\t'<<check1sum-check2sum<<endl;
+		for (int i = 1; i < N; i++)
+		{
+			p = x[i];
+			gee1primeintegral = 0;
+			for (int j = 1; j < N; j++)
+			{
+				q = x[j];
+				gee1primeintegral = gee1primeintegral + w[j] * dimer2(g, q, E, m) * gee1(j) * exchangeprime(q, p, E, m) + w[j] * exchange(q, p, E, m) * gee1(j) * dimer2prime(g, q, E, m);
+				//gee1primeintegral = gee1primeintegral+2/pi*w[j]*wolfram(g, q, E, m, p)*gee1(j);
+			}
+			timesgee1prime(i) = gee0prime(i) * ro / 2 * (g + sqrt(0.75 * p * p - m * E)) - (ro / 2.) * gee0(i) * m / (2 * sqrt(0.75 * p * p - m * E)) + gee1primeintegral;
+		}
+		gee1prime = LO1 * timesgee1prime;
+		for (int i = 1; i < x.size(); i++)
+		{
+			q = x[i];
+			sigma1prime = sigma1prime + w[i] * timesgee0(g, q, E, m) * gee1(i) + w[i] * timesgee0prime(g, q, E, m) * gee1prime(i);
+		}
+		for (int i = 1; i < N; i++)
+		{
+			q = x[i];
+			realgamma1(i) = (sqrt(pi / sigma0prime) * (gee1(i) - 0.5 * (sigma1prime / sigma0prime) * gee0(i))) / (g - sqrt(0.75 * q * q - m * E));
+		}
+		for (int i = 1; i < N; i++)
+		{
+			q = x[i];
+			checksigma1 = checksigma1 +
+				m / (2 * pi * pi * pi) * w[i] * q * q * realgamma1(i) * (pi / 2.) * realgamma0(i) / sqrt(0.75 * q * q - m * E) +
+				m / (2 * pi * pi * pi) * w[i] * q * q * realgamma0(i) * (pi / 2.) * realgamma1(i) / sqrt(0.75 * q * q - m * E) -
+				m * r / (4 * pi * pi) * w[i] * q * q * realgamma0(i) * realgamma0(i);
+			for (int j = 1; j < N; j++)
+			{
+				l = x[j];
+				checksigma2 = checksigma2 -
+					m / (2 * pi * pi * pi) * w[i] * realgamma1(i) * q * q * w[j] * l * l * 4 * realgamma0(j) / (q * q * l * l - pow(q * q + l * l - m * E, 2)) -
+					m / (2 * pi * pi * pi) * w[i] * realgamma0(i) * q * q * w[j] * l * l * 4 * realgamma1(j) / (q * q * l * l - pow(q * q + l * l - m * E, 2));
+			}
+		}
+
+
+		for (int i = 1; i < N; i++)
+		{
+			l = x[i];
+			check1sum = check1sum + (w[i] * check1(g, l, E, m) * gee0(i) * gee0(i) / sigma0prime);
+		}
+		for (int i = 1; i < N; i++)
+		{
+			l = x[i];
+			for (int j = 1; j < N; j++)
+			{
+				q = x[j];
+				check2sum = check2sum + w[j] * w[i] * check2(g, l, q, E, m) * gee0(j) * gee0(i) / sigma0prime;
+			}
+		}
+		checksigma = checksigma1 + checksigma2;
+		//cout<<"NormalizationNLO:"<<checksigma<<endl;
+	}
+}
