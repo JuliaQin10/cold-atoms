@@ -4,7 +4,7 @@
 #include <list>
 #include <armadillo>
 using namespace arma;
-
+using namespace std;
 double pi = 4. * atan(1);
 
 void gauleg(const Doub x1, const Doub x2, VecDoub_O& x, VecDoub_O& w) //x and w are customized variables defined in previous files
@@ -82,89 +82,98 @@ Doub timesgamma0prime(Doub g, Doub q, Doub E, Doub m)
 
 int main()
 {
-    Doub g = 0.2;
-    Doub m = 938.;
-    Doub q, p, l, k;
-    Doub Estar = -8.;
-    //Doub ro = .01;
-    Doub product, sigma0prime, sigma0, store, En, sigma0star;
-    En =   Estar/489.846;
-    int N = 1000;
-    mat A(N, N);
-    mat B;
-    vec gamma1(N);
-    vec productprime(N);
-    vec gamma0prime(N);
-    VecDoub_O x(N);
-    VecDoub_O w(N);
-    sigma0star=0;
-    gauleg(0.,1000.,x,w);
-    for (int i = 1; i < x.size(); i++)
+    Doub g = 9.05;
+    Doub t;
+    ofstream excited;
+    excited.open ("excited_energy.dat");
+    for (t=1; t<100;t++)
     {
-        q = x[i];
-        for (int j = 1; j < N; j++)
-        {
-            p = x[j];
-            product = w[j] * dimer(g, p, Estar, m) * exchange(q, p, Estar, m);
-            A(i, j) = product;
-        }
-    }
-    mat identity(N, N, fill::eye);
-    mat LO = identity - A;
-    mat LO1 = inv(LO);
-    B.ones(1, N);
-    vec gamma0 = LO1 * trans(B);
-    
-    for (int i = 1; i < x.size(); i++)
-    {
-        q = x[i];
-        sigma0star = sigma0star + w[i] * dimer2(g, q, Estar, m) * gamma0(i);
-    }
-    do
-    {
-        sigma0 = 0;
-        sigma0prime = 0;
+        g=g+0.01;
+        Doub m = 938.;
+        Doub q, p, l, k;
+        Doub Estar = -8.;
+        //Doub ro = .01;
+        Doub product, sigma0prime, sigma0, store, En, sigma0star;
+        En =   -0.147226;
+        int N = 1000;
+        mat A(N, N);
+        mat B;
+        vec gamma1(N);
+        vec productprime(N);
+        vec gamma0prime(N);
+        VecDoub_O x(N);
+        VecDoub_O w(N);
+        sigma0star=0;
+        gauleg(0.,1000.,x,w);
         for (int i = 1; i < x.size(); i++)
         {
             q = x[i];
             for (int j = 1; j < N; j++)
             {
                 p = x[j];
-                product = w[j] * dimer(g, p, En, m) * exchange(q, p, En, m);
+                product = w[j] * dimer(g, p, Estar, m) * exchange(q, p, Estar, m);
                 A(i, j) = product;
             }
         }
-        LO = identity - A;
-        LO1 = inv(LO);
+        mat identity(N, N, fill::eye);
+        mat LO = identity - A;
+        mat LO1 = inv(LO);
         B.ones(1, N);
-        gamma0 = LO1 * trans(B);
+        vec gamma0 = LO1 * trans(B);
         
         for (int i = 1; i < x.size(); i++)
         {
-            p = x[i];
-            productprime(i) = 0.0;
-            for (int j = 1; j < N; j++)
+            q = x[i];
+            sigma0star = sigma0star + w[i] * dimer2(g, q, Estar, m) * gamma0(i);
+        }
+        do
+        {
+            sigma0 = 0;
+            sigma0prime = 0;
+            for (int i = 1; i < x.size(); i++)
             {
-                q = x[j];
-                productprime(i) = productprime(i) + w[j] * dimer2(g, q, En, m) * gamma0(j) * exchangeprime(q, p, En, m) + w[j] * exchange(q, p, En, m) * gamma0(j) * dimer2prime(g, q, En, m);
+                q = x[i];
+                for (int j = 1; j < N; j++)
+                {
+                    p = x[j];
+                    product = w[j] * dimer(g, p, En, m) * exchange(q, p, En, m);
+                    A(i, j) = product;
+                }
             }
+            LO = identity - A;
+            LO1 = inv(LO);
+            B.ones(1, N);
+            gamma0 = LO1 * trans(B);
+            
+            for (int i = 1; i < x.size(); i++)
+            {
+                p = x[i];
+                productprime(i) = 0.0;
+                for (int j = 1; j < N; j++)
+                {
+                    q = x[j];
+                    productprime(i) = productprime(i) + w[j] * dimer2(g, q, En, m) * gamma0(j) * exchangeprime(q, p, En, m) + w[j] * exchange(q, p, En, m) * gamma0(j) * dimer2prime(g, q, En, m);
+                }
+            }
+            gamma0prime = LO1 * productprime;
+            for (int i = 1; i < x.size(); i++)
+            {
+                q = x[i];
+                sigma0 = sigma0 + w[i] * dimer2(g, q, En, m) * gamma0(i);
+            }
+            for (int i = 1; i < x.size(); i++)
+            {
+                q = x[i];
+                sigma0prime = sigma0prime + w[i] * timesgamma0(g, q, En, m) * gamma0(i) + w[i] * timesgamma0prime(g, q, En, m) * gamma0prime(i);
+            }
+            store = En;
+            En = En - (sigma0 - sigma0star)/sigma0prime;
         }
-        gamma0prime = LO1 * productprime;
-        for (int i = 1; i < x.size(); i++)
-        {
-            q = x[i];
-            sigma0 = sigma0 + w[i] * dimer2(g, q, En, m) * gamma0(i);
-        }
-        for (int i = 1; i < x.size(); i++)
-        {
-            q = x[i];
-            sigma0prime = sigma0prime + w[i] * timesgamma0(g, q, En, m) * gamma0(i) + w[i] * timesgamma0prime(g, q, En, m) * gamma0prime(i);
-        }
-        store = En;
-        En = En - (sigma0 - sigma0star)/sigma0prime;
-        cout << En <<'\t'<<Estar/En<<endl;
+        while (abs(store - En) > pow(10, -12));
+        cout<<g<<'\t'<<En<<'\t'<<g*g/m<<endl;
+        excited << g <<'\t'<<En<<'\t'<<g*g/m<<endl;
     }
-    while (abs(store - En) > pow(10, -12));
+    excited.close();
 }
 
 /*
