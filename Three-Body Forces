@@ -121,6 +121,8 @@ int main()
 	Doub product, sigma0prime, check1sum, check2sum, sigma0, sigma1;
 	Doub gee1primeintegral;
 	Doub checksigma1, checksigma2, checksigma, sigma1prime, LOradius, NLOradius;
+	Doub Boundn = -10;
+	Doub Boundn1, , sigmabound, sigmaboundprime, sigma1bound, B1;
 	int N = 100;
 	mat A(N, N);
 	mat B;
@@ -177,7 +179,7 @@ int main()
 		mat LO1 = inv(LO);
 		B.ones(1, N);
 		vec gee0 = LO1 * trans(B);
-		for (int j = 1; j < N; j++) 
+		for (int j = 1; j < N; j++)
 		{
 			gee1(j) = gee0(j) * inhomogenous(ro, g, x[j], m, E);
 		}
@@ -193,7 +195,7 @@ int main()
 		{
 			k = 0;
 			p = x[i];
-			inhomogenousC(i) = t0d(i)*inhomogenous3(r, g, p, m, E);
+			inhomogenousC(i) = t0d(i) * inhomogenous3(r, g, p, m, E);
 		}
 		t1d = LO1 * inhomogenousC;
 		for (int i = 1; i < N; i++)
@@ -265,7 +267,59 @@ int main()
 			q = x[i];
 			sigma0prime = sigma0prime + w[i] * timesgee0(g, q, E, m) * gee0(i) + w[i] * timesgee0prime(g, q, E, m) * gee0prime(i);
 		}
-		for (i = 1; i < N; i++)
+		
+		do
+		{
+			sigmabound = 0;
+			sigmaboundprime = 0;
+			for (int i = 1; i < x.size(); i++)
+			{
+				q = x[i];
+				for (int j = 1; j < N; j++)
+				{
+					p = x[j];
+					product = w[j] * dimer(g, p, Boundn, m) * exchange(q, p, Boundn, m);
+					A(i, j) = product;
+				}
+			}
+			LO = identity - A;
+			LO1 = inv(LO);
+			B.ones(1, N);
+			gamma0 = LO1 * trans(B);
+
+			for (int i = 1; i < x.size(); i++)
+			{
+				p = x[i];
+				productprime(i) = 0.0;
+				for (int j = 1; j < N; j++)
+				{
+					q = x[j];
+					productprime(i) = productprime(i) + w[j] * dimer2(g, q, Boundn, m) * gamma0(j) * exchangeprime(q, p, Boundn, m) + w[j] * exchange(q, p, Boundn, m) * gamma0(j) * dimer2prime(g, q, Boundn, m);
+				}
+			}
+			gamma0prime = LO1 * productprime;
+			for (int i = 1; i < x.size(); i++)
+			{
+				q = x[i];
+				sigmabound = sigmabound + w[i] * dimer2(g, q, Boundn, m) * gamma0(i);
+			}
+			for (int i = 1; i < x.size(); i++)
+			{
+				q = x[i];
+				sigmaboundprime = sigmaboundprime + w[i] * timesgamma0(g, q, Boundn, m) * gamma0(i) + w[i] * timesgamma0prime(g, q, Boundn, m) * gamma0prime(i);
+			}
+			Boundn1 = Boundn;
+			Boundn = Boundn + (1-HLO*sigmabound) / (HLO*sigmaboundprime);
+		} while (abs(Boundn1 - Boundn) > pow(10, -12));
+		for (int i = 1; i < N; i++)
+		{
+			q = x[i];
+			sigmabound = sigmabound + w[i] * dimer2(g, q, Boundn, m) * gamma0(i);
+			sigmaboundprime = sigmaboundprime + w[i] * timesgamma0(g, q, Boundn, m) * gamma0(i) + w[i] * timesgamma0prime(g, q, Boundn, m) * gamma0prime(i);
+			sigma1bound= sigma1 + w[i] * dimer2(g, q, Boundn, m) * gee1(i);
+		}
+		B1 = -(HLO * sigma1bound + HNLO * sigma0bound) / (HLO * sigmaboundprime);
+		for (int i = 1; i < N; i++)
 		{
 			q = x[i];
 			realgamma0(i) = (sqrt(pi / sigma0prime)) * gee0(i) / (g - sqrt(0.75 * q * q - m * E));
