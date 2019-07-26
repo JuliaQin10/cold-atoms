@@ -295,7 +295,7 @@ Doub wolfram(Doub g, Doub q, Doub E, Doub m, Doub p)
 
 int main()
 {
-    Doub g=0.;
+    Doub g=45.;
     Doub m=938.918;
     Doub q,p,l,k;
     Doub E=-7.62;
@@ -475,7 +475,7 @@ int main()
         //cout<<"diagrama"<<'\t'<<diagrama<<endl;
         diagramc=(diagramc1sum*(4./9.)+diagramc2sum*(16./3.))*pi/sigma0prime;
         //cout<<"diagramc"<<'\t'<<diagramc<<endl;
-        checkdiagram=diagrama+diagramb+diagramc;
+        checkdiagram=diagrama+4.*diagramb+diagramc;
         //cout<<"checkdiagram"<<'\t'<<checkdiagram<<endl;
         cout<<"LO-unitariy-charge-radius-check:"<<-6.*(diagrama+4.*diagramb+diagramc)*m*E*.5<<endl;
         cout<<"LO-charge-radius:"<<sqrt(-6.*(diagrama+4.*diagramb+diagramc)*.5)*197.327<<endl;
@@ -502,7 +502,7 @@ int main()
                 NLOdiagramc5sum = NLOdiagramc5sum + w[j]*dimerp(g, p, m, E)*gamma0(j)*(4/3)*B25(g, E, m, p, k, r)*w[i]*dimerk(g, k, m, E)*gamma0(i);
             }
         }
-        NLOdiagramc=(NLOdiagramc1sum*(40./3.)+NLOdiagramc2sum*(4./3.)+NLOdiagramc3sum*(160./3.)+NLOdiagramc4sum*(160./3.)+NLOdiagramc5sum*(16./3.))*pi/sigma0prime;
+        NLOdiagramc=(NLOdiagramc1sum*(4./3.)+NLOdiagramc2sum*(4./3.)+NLOdiagramc3sum*(16./3.)+NLOdiagramc4sum*(16./3.)+NLOdiagramc5sum*(16./3.))*pi/sigma0prime;
         for (int i=1;i<N;i++)
         {
             q=x[i];
@@ -520,7 +520,7 @@ int main()
                 }
             }
         }
-        NLOdiagrama=(0.5*NLOdiagrama1sum+10.*NLOdiagrama2sum+NLOdiagrama3sum+4.*NLOdiagrama4sum+4.*NLOdiagrama5sum)*pi/sigma0prime;
+        NLOdiagrama=(0.5*NLOdiagrama1sum+NLOdiagrama2sum+NLOdiagrama3sum+4.*NLOdiagrama4sum+4.*NLOdiagrama5sum)*pi/sigma0prime;
         for (int i=1;i<N;i++)
         {
             k=x[i];
@@ -590,9 +590,7 @@ int main()
         }
         checksigma=checksigma1+checksigma2;
         cout<<"NormalizationNLO:"<<checksigma<<endl;
-        NLOradius=(NLOdiagrama+NLOdiagramb+NLOdiagramc+NLOdiagramd)*pi/sigma0prime-sigma1prime/sigma0prime*checkdiagram;
+        NLOradius=-6.*((NLOdiagrama+NLOdiagramb+NLOdiagramc+NLOdiagramd)-sigma1prime/sigma0prime*checkdiagram)*(197.327*197.327);
         cout<<"NLO charge radius"<<"\t"<<NLOradius<<endl;
     }
 }
-
-
