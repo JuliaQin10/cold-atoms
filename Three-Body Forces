@@ -145,8 +145,8 @@ int main()
     VecDoub_O x(N);
     VecDoub_O w(N);
     ofstream forces;
-    for (int iter = 1; iter < 31; iter++)
-    {
+    //for (int iter = 1; iter < 31; iter++)
+    //{
         sigma0 = 0;
         sigma1 = 0;
         sigma0prime = 0;
@@ -261,8 +261,8 @@ int main()
             sigma0prime = sigma0prime + w[i] * timesgee0(g, q, E, m) * gee0(i) + w[i] * timesgee0prime(g, q, E, m) * gee0prime(i);
         }
         
-        Boundn=-7.62;
-        do
+        Boundn=-10.43;
+        for (int i=1; i<1000;i++)
         {
             sigmabound =0.;
             sigmaboundprime =0.;
@@ -305,10 +305,12 @@ int main()
                 q = x[i];
                 sigmaboundprime = sigmaboundprime + w[i] * timesgee0(g, q, Boundn, m) * gee0(i) + w[i] * timesgee0prime(g, q, Boundn, m) * gee0prime(i);
             }
-            Boundn1 = Boundn;
-            Boundn = Boundn - (1.-HLO*sigmabound) / (HLO*sigmaboundprime);
-            cout<<"test:"<<abs(Boundn1 - Boundn)<<'\t'<<Boundn<<'\t'<<Boundn1<<endl;
-        } while (abs(Boundn1 - Boundn) > pow(10, -12));
+            Boundn=Boundn+.0001;
+            forces << Boundn << "\t" << 1.-HLO*sigmabound<<"\t"<<HLO*sigmaboundprime << "\n";
+            //Boundn1 = Boundn;
+            //Boundn = Boundn - (1.-HLO*sigmabound) / (HLO*sigmaboundprime);
+            //cout<<"test:"<<abs(Boundn1 - Boundn)<<'\t'<<Boundn<<'\t'<<Boundn1<<endl;
+        }
         
         for (int i = 1; i < N; i++)
         {
@@ -323,8 +325,8 @@ int main()
         cout<<"HNLO"<<"\t"<<HNLO<<endl;
         cout<<"LO Binding Energy"<<"\t"<<Boundn<<endl;
         cout<<"NLO Binding Energy"<<"\t"<<B1<<endl;
-        forces << cutoff << "\t" << HLO << "\t" << HNLO << "\n";
-    }
+        //forces << Boundn << "\t" << 1-HLO*sigmabound << "\n";
+    //}
     forces.close();
 }
 //produce three body forces for a bunch of different cutoffs
