@@ -145,8 +145,9 @@ int main()
     VecDoub_O x(N);
     VecDoub_O w(N);
     ofstream forces;
-    //for (int iter = 1; iter < 31; iter++)
-    //{
+    forces.open("forces.dat");
+    for (int iter = 1; iter < 21; iter++)
+    {
         sigma0 = 0;
         sigma1 = 0;
         sigma0prime = 0;
@@ -159,7 +160,7 @@ int main()
         sigma1bound=0;
         HLO = 0;
         cutoff = cutoff + 100;
-        forces.open("forces" + to_string(cutoff) + ".dat");
+        //forces.open("forces" + to_string(cutoff) + ".dat");
         gauleg(0., cutoff, x, w);
         for (int i = 1; i < x.size(); i++)
         {
@@ -248,12 +249,16 @@ int main()
             sigma1 = sigma1 + w[i] * dimer2(g, q, E, m) * gee1(i);
         }
         HLO = variablex / (1 + variablex * sigma0);
-        HNLO = (t1dmomentum * ZLO +
+        HNLO = (-3.*pi*length*g*r/m - ZLO*t0dmomentum - pi*HLO*HLO*ZLO*sigma1*gee0momentum*gee0momentum/pow(1.-HLO*sigma0,2))/
+        (pi*ZLO*gee0momentum*gee0momentum/(1.-HLO*sigma0)+pi*HLO*ZLO*sigma0*gee0momentum*gee0momentum/pow(1.-HLO*sigma0,2) + 2.*gee0momentum*gee1momentum*pi*ZLO/(1.-HLO*sigma0));
+        //HNLO = (-3.*pi*length*g*r/m - ZLO*t1dmomentum - 2.*pi*ZLO*HLO*gee1momentum/(1.-HLO*sigma0) - pi*HLO*HLO*ZLO*sigma1*gee0momentum*gee0momentum/pow(1.-HLO*sigma0,2))/
+        //(pi*ZLO/(1.-HLO*sigma0)+pi*HLO*ZLO*sigma0/pow(1.-HLO*sigma0,2));
+        /*HNLO = (t1dmomentum * ZLO +
                 2 * gee0momentum * gee1momentum * HLO * pi * ZLO / (1 - HLO * sigma0) +
                 r * g * (t0dmomentum * ZLO + gee0momentum * gee0momentum * HLO * pi * ZLO / (1 - HLO * sigma0)) +
                 gee0momentum * gee0momentum * HLO * HLO * pi * ZLO * sigma1 / pow(1 - HLO * sigma0, 2)) /
         (-gee0momentum * gee0momentum * HLO * pi * ZLO * sigma0 / pow(1 - HLO * sigma0, 2) -
-         gee0momentum * gee0momentum * pi * ZLO / (1 - HLO * sigma0));
+         gee0momentum * gee0momentum * pi * ZLO / (1 - HLO * sigma0));*/
         //cout<<"B0"<<"\t"<<Boundn<<endl;
         for (int i = 1; i < x.size(); i++)
         {
@@ -262,55 +267,53 @@ int main()
         }
         
         Boundn=-10.43;
-        for (int i=1; i<1000;i++)
+    do
+    {
+        sigmabound =0.;
+        sigmaboundprime =0.;
+        for (int i = 1; i < x.size(); i++)
         {
-            sigmabound =0.;
-            sigmaboundprime =0.;
-            for (int i = 1; i < x.size(); i++)
+            q = x[i];
+            for (int j = 1; j < N; j++)
             {
-                q = x[i];
-                for (int j = 1; j < N; j++)
-                {
-                    p = x[j];
-                    product = w[j] * dimer(g, p, Boundn, m) * exchange(q, p, Boundn, m);
-                    A(i,j) = product;
-                }
+                p = x[j];
+                product = w[j] * dimer(g, p, Boundn, m) * exchange(q, p, Boundn, m);
+                A(i,j) = product;
             }
-            LO = identity - A;
-            LO1 = inv(LO);
-            B.ones(1, N);
-            
-            gee0 = LO1 * trans(B);
-            
-           
-            for (int i = 1; i < x.size(); i++)
-            {
-                p = x[i];
-                productprime(i) = 0.0;
-                for (int j = 1; j < N; j++)
-                {
-                    q = x[j];
-                    productprime(i) = productprime(i) + w[j] * dimer2(g, q, Boundn, m) * gee0(j) * exchangeprime(q, p, Boundn, m) + w[j] * exchange(q, p, Boundn, m) * gee0(j) * dimer2prime(g, q, Boundn, m);
-                }
-            }
-            gee0prime = LO1 * productprime;
-            
-            for (int i = 1; i < x.size(); i++)
-            {
-                q = x[i];
-                sigmabound = sigmabound + w[i] * dimer2(g, q, Boundn, m) * gee0(i);
-            }
-            for (int i = 1; i < x.size(); i++)
-            {
-                q = x[i];
-                sigmaboundprime = sigmaboundprime + w[i] * timesgee0(g, q, Boundn, m) * gee0(i) + w[i] * timesgee0prime(g, q, Boundn, m) * gee0prime(i);
-            }
-            Boundn=Boundn+.0001;
-            forces << Boundn << "\t" << 1.-HLO*sigmabound<<"\t"<<HLO*sigmaboundprime << "\n";
-            //Boundn1 = Boundn;
-            //Boundn = Boundn - (1.-HLO*sigmabound) / (HLO*sigmaboundprime);
-            //cout<<"test:"<<abs(Boundn1 - Boundn)<<'\t'<<Boundn<<'\t'<<Boundn1<<endl;
         }
+        LO = identity - A;
+        LO1 = inv(LO);
+        B.ones(1, N);
+        
+        gee0 = LO1 * trans(B);
+        
+        
+        for (int i = 1; i < x.size(); i++)
+        {
+            p = x[i];
+            productprime(i) = 0.0;
+            for (int j = 1; j < N; j++)
+            {
+                q = x[j];
+                productprime(i) = productprime(i) + w[j] * dimer2(g, q, Boundn, m) * gee0(j) * exchangeprime(q, p, Boundn, m) + w[j] * exchange(q, p, Boundn, m) * gee0(j) * dimer2prime(g, q, Boundn, m);
+            }
+        }
+        gee0prime = LO1 * productprime;
+        
+        for (int i = 1; i < x.size(); i++)
+        {
+            q = x[i];
+            sigmabound = sigmabound + w[i] * dimer2(g, q, Boundn, m) * gee0(i);
+        }
+        for (int i = 1; i < x.size(); i++)
+        {
+            q = x[i];
+            sigmaboundprime = sigmaboundprime + w[i] * timesgee0(g, q, Boundn, m) * gee0(i) + w[i] * timesgee0prime(g, q, Boundn, m) * gee0prime(i);
+        }
+        Boundn1 = Boundn;
+        Boundn = Boundn + (1.-HLO*sigmabound) / (m*HLO*sigmaboundprime);
+        //cout<<"test:"<<abs(Boundn1 - Boundn)<<'\t'<<Boundn<<'\t'<<Boundn1<<'\t'<<1.-HLO*sigmabound<<endl;
+    } while (abs(Boundn1 - Boundn) > pow(10, -12));
         
         for (int i = 1; i < N; i++)
         {
@@ -325,10 +328,18 @@ int main()
         cout<<"HNLO"<<"\t"<<HNLO<<endl;
         cout<<"LO Binding Energy"<<"\t"<<Boundn<<endl;
         cout<<"NLO Binding Energy"<<"\t"<<B1<<endl;
+        forces << cutoff << "\t" << HLO << "\t" << Boundn << "\t" << B1 << "\t" << HNLO<<endl;
         //forces << Boundn << "\t" << 1-HLO*sigmabound << "\n";
-    //}
+    }
     forces.close();
 }
 //produce three body forces for a bunch of different cutoffs
 //plot cutoffs vs three body forces
 //print out hlo and hnlo and lo binding energy and next to leading order correction to the binding energy
+
+
+//go back to old code where we printed out the values of 1-HLO*sigmabound
+//also print out values of -HLO*sigmaboundprime
+//print all into one file
+//columns of: boundn, 1-HLO*sigmabound, 1-HLO*sigmaboundprime
+//email file to Dr.Vanasse
