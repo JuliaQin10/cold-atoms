@@ -64,7 +64,8 @@ Doub inhomogenous(Doub ro, Doub g, Doub p, Doub m, Doub E)
 Doub inhomogenous2(Doub p, Doub k, Doub m, Doub E)
 {
     //return 1.;
-    return 2.*pi/(-E*m+p*p);
+    //return 2.*pi/(-E*m+p*p);
+    return 2./(-E*m+p*p);
     //return pi/ (p * k) * log((p * p + k * k - m * E + p * k) / (p * p + k * k - m * E - p * k));
 }
 
@@ -118,18 +119,21 @@ Doub inhomogenous3(Doub r, Doub g, Doub p, Doub m, Doub E)
 
 int main()
 {
-    Doub g = 45.;
-    Doub m = 938.918;
+    Doub g = 1./100.01;
+    //Doub g = 0.000000001;
+    //Doub g= 0.00989901;
+    //Doub m = 0.0825165363;
+    Doub m = 1889453.22;
     Doub q, p, k;
     Doub t0dmomentum, variablex, gee0momentum, ZLO, HLO, gee1momentum, t1dmomentum, HNLO, prop;
-    Doub length = 0.65/197.327;
+    Doub length = 1.205*100.01;
     Doub E = -g * g / m;
     Doub ro = 0.1;
     Doub r = 0.1;
     Doub product, sigma0prime, sigma0, sigma1;
     Doub Boundn = -10;
     Doub Boundn1, sigmabound, sigmaboundprime, sigma1bound, B1;
-    int N = 100;
+    int N = 1000;
     mat A(N, N);
     mat B;
     vec gee1(N);
@@ -142,12 +146,13 @@ int main()
     vec realgamma0(N);
     vec t0d(N);
     vec t1d(N);
-    int cutoff = 100;
+    int cutoff = 2900;
+    //int cutoff = 3000;
     VecDoub_O x(N);
     VecDoub_O w(N);
     ofstream forces;
     forces.open("forces.dat");
-    for (int iter = 1; iter < 30; iter++)
+    for (int iter = 1; iter < 100; iter++)
     {
         sigma0 = 0;
         sigma1 = 0;
@@ -160,11 +165,13 @@ int main()
         sigmaboundprime = 0;
         sigma1bound=0;
         HLO = 0;
+        //g=g+(1./10001.);
         cutoff = cutoff + 100;
         //forces.open("forces" + to_string(cutoff) + ".dat");
         gauleg(0., cutoff, x, w);
         //cout<<"x[0]:"<<x[1]<<endl;
         cout<<"cutoff"<<'\t'<<cutoff<<endl;
+        //cout<<"g"<<'\t'<<g<<endl;
         for (int i = 0; i < x.size(); i++)
         {
             q = x[i];
@@ -230,7 +237,7 @@ int main()
         gee0momentum=gee0momentum+1.;
         
         //cout <<"gee0momentum"<<"\t"<<gee0momentum<<endl;
-        variablex = -(3 * pi * length / m + ZLO * t0dmomentum) / (pi * ZLO * gee0momentum * gee0momentum);
+        variablex = -(3. * pi * length / m + ZLO * t0dmomentum) / (pi * ZLO * gee0momentum * gee0momentum);
         //cout <<"variablex"<<"\t"<<variablex<<endl;
         for (int i = 0; i < N; i++)
         {
@@ -285,7 +292,16 @@ int main()
             sigma0prime = sigma0prime + w[i] * timesgee0(g, q, E, m) * gee0(i) + w[i] * timesgee0prime(g, q, E, m) * gee0prime(i);
         }
         
-        Boundn=-3.0;
+    
+        if(cutoff==3000.){
+            Boundn=E;
+            //Boundn=97.12*E;
+            //Boundn=-483.;  //excited state energy
+        }
+        
+        //if(cutoff==200.){
+        //    Boundn=-2520.;  //excited state energ y
+        //}
         //cout<<"dog"<<endl;
     do
     {
@@ -334,7 +350,8 @@ int main()
         //cout<<"sigmabound"<<'\t'<<sigmabound<<endl;
         //cout<<"sigmaboundprime"<<'\t'<<sigmaboundprime<<endl;
         Boundn = Boundn + (1.-HLO*sigmabound) / (4.0*HLO*sigmaboundprime);
-        //cout<<"test:"<<abs(Boundn1 - Boundn)<<'\t'<<Boundn<<'\t'<<Boundn1<<'\t'<<1.-HLO*sigmabound<<endl;
+        //Boundn=Boundn-5.;
+        cout<<"test:"<<abs(Boundn1 - Boundn)<<'\t'<<Boundn<<'\t'<<Boundn1<<'\t'<<1.-HLO*sigmabound<<endl;
     } while (abs(Boundn1 - Boundn) > pow(10, -12));
         sigmabound =0.;
         sigmaboundprime =0.;
@@ -385,7 +402,8 @@ int main()
         cout<<"sigma1bound"<<"\t"<<sigma1bound<<endl;
         cout<<"sigmaboundprime"<<"\t"<<sigmaboundprime<<endl;
         cout<<"HNLO"<<"\t"<<HNLO<<endl;
-        cout<<"LO Binding Energy"<<"\t"<<Boundn<<endl;
+        cout<<"E"<<"\t"<<E*2.28988*pow(10, 10)<<endl;
+        cout<<"LO Binding Energy"<<"\t"<<Boundn/E<<endl;
         cout<<"NLO Binding Energy"<<"\t"<<B1<<endl;
         cout<<endl;
         forces << cutoff << "\t" << Boundn << "\t" << B1 << "\t" <<endl;
@@ -393,8 +411,4 @@ int main()
     }
     forces.close();
 }
-//print cutoffs, LO Binding Energy, NLO Binding Energy
-//from cutoffs of 200 to 3000, in steps of 100
-//1 file
-//may not converge for certain cutoffs. In that case, print whatever cutoffs you can.
-//goal: show binding energy as a function of cutoffs plateaus
+
