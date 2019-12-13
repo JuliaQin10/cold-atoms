@@ -71,6 +71,18 @@ Doub dimer2prime(Doub g, Doub q, Doub E, Doub m)
     return (m/pi)*pow(q,2)/(sqrt(.75*pow(q,2)-m*E)*pow(sqrt(.75*pow(q,2)-m*E)-g,2));
 }
 
+Doub dimerdoubleprime(Doub g, Doub q, Doub E, Doub m)
+{
+    return (16.*pow(m,2.)*pow(q,2.)*(3.*sqrt(-4.*E*m + 3.*pow(q,2.)) - 2.*g))
+    /(pi*pow(-4.*E*m + 3.*pow(q,2.),1.5)*pow(sqrt(-4.*E*m + 3.*pow(q,2.)) - 2.*g,3.));
+}
+
+Doub exchangedoubleprime(Doub q, Doub p, Doub E, Doub m)
+{
+    return (4.*pow(m,2.)*(-(E*m) + pow(p,2.) + pow(q,2.)))
+    /pow(pow(-(E*m) + pow(p,2.),2.) + (-2.*E*m + pow(p,2.))*pow(q,2.) + pow(q,4.),2.);
+}
+
 Doub timesgamma0(Doub g, Doub q, Doub E, Doub m)
 {
     return (m/(4.*pi))*pow(q,2)/(pow((sqrt(.75*pow(q,2)-m*E)-g),2)*sqrt(.75*pow(q,2)-m*E));
@@ -79,6 +91,11 @@ Doub timesgamma0(Doub g, Doub q, Doub E, Doub m)
 Doub timesgamma0prime(Doub g, Doub q, Doub E, Doub m)
 {
     return (1./(2.*pi))*pow(q,2)/(sqrt(.75*pow(q,2)-m*E)-g);
+}
+
+Doub timesgamma0double(Doub g, Doub q, Doub E, Doub m)
+{
+    return (4*pow(m,2)*pow(q,2)*(-2*g + 3*sqrt(-4*E*m + 3*pow(q,2))))/(pi*pow(-4*E*m + 3*pow(q,2),1.5)*pow(-2*g + sqrt(-4*E*m + 3*pow(q,2)),3));
 }
 
 Doub check1(Doub g, Doub l, Doub E, Doub m)
@@ -293,6 +310,28 @@ Doub wolfram(Doub g, Doub q, Doub E, Doub m, Doub p)
     (m*q*log((-(E*m) + pow(p,2) + p*q + pow(q,2))/(-(E*m) + pow(p,2) - p*q + pow(q,2))))/(2.*p*sqrt(-(E*m) + (3*pow(q,2))/4.)*pow(-g + sqrt(-(E*m) + (3*pow(q,2))/4.),2));
 }
 
+Doub A1(Doub k, Doub E, Doub m, Doub p)
+{
+    Doub a=variablea2(k, p, m, E);
+    return ((4*m*(6*(a + pow(a,3))*pow(k,2) + (1 - 4*pow(a,2) - 9*pow(a,4))*k*p +
+        6*a*(1 + pow(a,2))*pow(p,2))*pi)/
+    (27.*pow(-1 + pow(a,2),4)*pow(k,4)*pow(p,4)))*-m/(p*k);
+}
+
+/*Doub A2(Doub g, Doub q, Doub E, Doub m)
+{
+    Doub Dtitle=Dtilde(q, m, E);
+    Doub D=Dts(g,q,E,m);
+    return -(m*(-m/(2*Dtitle)
+                *Dd(q,E)*(pow(q,2)*pow(Dd(q,E),2) -
+            2*pow(q,2)*pow(Dt(q,E),2) +
+            4*Dd(q,E)*(g - 6*Dt(q,E))*pow(Dt(q,E),2)) +
+         2*Dt(q,E)*(pow(q,2)*pow(Dd(q,E),2) + 4*pow(q,2)*pow(Dt(q,E),2) -
+            3*Dd(q,E)*Dt(q,E)*(pow(q,2) + 2*(g - 3*Dt(q,E))*Dt(q,E)))*
+          Derivative(0,1)(Dd)(q,E)))/
+    (384.*pow(pi,2)*pow(Dd(q,E),5)*pow(Dt(q,E),2));
+}*/
+
 int main()
 {
     Doub g=1/100.01;
@@ -300,17 +339,18 @@ int main()
     Doub m=1889453.22;
     //Doub m = 938.918;
     Doub q,p,l,k;
-    Doub E=-g*g*1.723/m;//-5.13909*pow(10, -9);
+    Doub E=-g*g*97.12/m;//-5.13909*pow(10, -9);
+    Doub B1=0.;//-g*g*7.42/m;
     //Doub E=-7.62;
-    Doub ro=0.0113897;
-    Doub r=0.0113897;
+    Doub ro=7.50;
+    Doub r=7.50;
     Doub product, sigma0prime, check1sum, check2sum, diagrambsum, diagramb,diagrama,diagrama1sum,diagrama2sum,diagrama3sum,diagramc1sum,diagramc2sum,diagramc,checkdiagram, sigma0;
     Doub NLOdiagramb, NLOdiagrambsum, NLOdiagramd1sum, NLOdiagramd2sum, NLOdiagramd;
     Doub NLOdiagrama1sum, NLOdiagrama2sum, NLOdiagrama3sum, NLOdiagrama4sum, NLOdiagrama5sum, NLOdiagrama;
     Doub NLOdiagramc1sum, NLOdiagramc2sum, NLOdiagramc3sum, NLOdiagramc4sum, NLOdiagramc5sum, NLOdiagramc;
-    Doub gamma1primeintegral;
+    Doub gamma1primeintegral, sigma0double;
     Doub checksigma1, checksigma2, checksigma, sigma1prime, NLOradius;
-    int N=900;
+    int N=100;
     mat A(N,N);
     mat B;
     vec gamma1(N);
@@ -319,7 +359,7 @@ int main()
     vec gamma1prime(N);
     vec realgamma0(N);
     vec realgamma1(N);
-    int cutoff=8;
+    int cutoff=0;
     VecDoub_O x(N);
     VecDoub_O w(N);
     ofstream plot0;
@@ -328,10 +368,11 @@ int main()
     ofstream plotsigma;
     ofstream radius;
     radius.open ("radius.dat");
-    for (int i=1;i<21;i++)
+    for (int i=1;i<31;i++)
     {
         sigma0=0;
         sigma0prime=0;
+        sigma0double=0.;
         check1sum=0;
         check2sum=0;
         diagrambsum=0;
@@ -356,8 +397,8 @@ int main()
         checksigma1=0;
         checksigma2=0;
         sigma1prime=0;
-        cutoff=cutoff+1;
-        cout<<setprecision(20)<<"cutoff"<<'\t'<<cutoff<<endl;
+        cutoff=cutoff+10;
+        cout<<setprecision(5)<<"cutoff"<<'\t'<<cutoff<<endl;
         plot0.open ("gamma0_"+to_string(cutoff)+".dat");
         plot1.open ("gamma1_"+to_string(cutoff)+".dat");
         plot0prime.open ("gamma0prime_"+to_string(cutoff)+".dat");
@@ -399,13 +440,23 @@ int main()
             }
         }
         vec gamma0prime=LO1*productprime;
+        for(int i=0;i<x.size();i++)
+        {
+            p=x[i];
+            productprime(i)=0.0;
+            for (int j=0;j<N;j++)
+            {
+                q=x[j];
+                productprime(i)=productprime(i)+2.*w[j]*dimer2(g, q, E, m)*gamma0prime(j)*exchangeprime(q, p, E, m)+2.*w[j]*exchange(q,p,E,m)*gamma0prime(j)*dimer2prime(g, q, E, m)
+                + w[j]*(dimerdoubleprime(g, q, E, m)*exchange(q,p,E,m)+2.*dimer2prime(g, q, E, m)*exchangeprime(q, p, E, m)+dimer2(g, q, E, m)*exchangedoubleprime(q, p, E, m))*gamma0(j);
+            }
+        }
+        vec gamma0double=LO1*productprime;
         for (int i=0;i<x.size();i++)
         {
             q=x[i];
             sigma0=sigma0+w[i]*dimer2(g, q, E, m)*gamma0(i);
         }
-        
-        
         
         for(int i=0;i<x.size();i++)
         {
@@ -413,8 +464,13 @@ int main()
             sigma0prime=sigma0prime+w[i]*timesgamma0(g, q, E, m)*gamma0(i)+w[i]*timesgamma0prime(g, q, E, m)*gamma0prime(i);
         }
         vec normalized=(sqrt(pi/sigma0prime))*gamma0;
-        cout<<"sigma0"<<'\t'<<sigma0<<endl;
-        cout<<"sigma0prime"<<'\t'<<sigma0prime<<endl;
+        for(int i=0;i<x.size();i++)
+               {
+                   q=x[i];
+                   sigma0double=sigma0double+w[i]*timesgamma0double(g, q, E, m)*gamma0(i)+w[i]*timesgamma0(g, q, E, m)*gamma0prime(i)+w[i]*timesgamma0prime(g, q, E, m)*gamma0double(i);
+               }
+        //cout<<"sigma0"<<'\t'<<sigma0<<endl;
+        //cout<<"sigma0prime"<<'\t'<<sigma0prime<<endl;
         for (int i=0;i<N;i++)
         {
             q=x[i];
@@ -488,9 +544,9 @@ int main()
         checkdiagram=diagrama+4.*diagramb+diagramc;
         //cout<<"checkdiagram"<<'\t'<<checkdiagram<<endl;
         //double rLO=sqrt(-6.*(diagrama+4.*diagramb+diagramc)*.5);
-        double rLO=sqrt(-6.*(diagrama+4.*diagramb+diagramc)*.5)*197.327;
+        double rLO=sqrt(-6.*(diagrama+4.*diagramb+diagramc)*.5);
         //cout<<"LO-unitariy-charge-radius-check:"<<-6.*(diagrama+4.*diagramb+diagramc)*m*E*.5<<endl;
-        cout<<"LO-charge-radius:"<<rLO<<endl;
+        //cout<<"LO-charge-radius:"<<endl<<rLO<<endl;
         for (int i=0;i<N;i++)
         {
             p=x[i];
@@ -602,8 +658,10 @@ int main()
         }
         checksigma=checksigma1+checksigma2;
         //cout<<"NormalizationNLO:"<<checksigma<<endl;
-        NLOradius=-6.*((NLOdiagrama+NLOdiagramb+NLOdiagramc+NLOdiagramd)-(sigma1prime/sigma0prime)*(diagrama+4.*diagramb+diagramc)*.5)*(197.327*197.327);
-        cout<<"NLO charge radius"<<"\t"<<rLO*(1.+.5*NLOradius/(rLO*rLO))<<endl;
+        NLOradius=-6.*((NLOdiagrama+NLOdiagramb+NLOdiagramc+NLOdiagramd)-((sigma1prime/sigma0prime)+B1*sigma0double/sigma0prime)*(diagrama+4.*diagramb+diagramc)*.5);
+        cout<<"NLO charge radius"<<endl<<rLO*(1.+.5*NLOradius/(rLO*rLO))<<endl;
         cout<<endl;
     }
 }
+
+
